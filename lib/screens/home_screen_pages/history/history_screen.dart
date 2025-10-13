@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/models/history_item.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/user_provider.dart';
@@ -11,11 +13,31 @@ class HistoryScreen extends StatelessWidget {
 
   // Dummy data for development
   final List<Map<String, String>> _dummyHistory = const [
-    {"title": "Debate Practice", "summary": "Talked about AI ethics and future regulations.", "time": "2 days ago"},
-    {"title": "Meeting Prep", "summary": "Prepared key points for client meeting.", "time": "5 days ago"},
-    {"title": "Daily Reflection", "summary": "Reflected on productivity and habits.", "time": "1 week ago"},
-    {"title": "Study Session", "summary": "Review of quantum computing fundamentals.", "time": "2 weeks ago"},
-    {"title": "Creative Writing", "summary": "Brainstormed novel plot points and character arcs.", "time": "2 weeks ago"}
+    {
+      "title": "Debate Practice",
+      "summary": "Talked about AI ethics and future regulations.",
+      "time": "2 days ago"
+    },
+    {
+      "title": "Meeting Prep",
+      "summary": "Prepared key points for client meeting.",
+      "time": "5 days ago"
+    },
+    {
+      "title": "Daily Reflection",
+      "summary": "Reflected on productivity and habits.",
+      "time": "1 week ago"
+    },
+    {
+      "title": "Study Session",
+      "summary": "Review of quantum computing fundamentals.",
+      "time": "2 weeks ago"
+    },
+    {
+      "title": "Creative Writing",
+      "summary": "Brainstormed novel plot points and character arcs.",
+      "time": "2 weeks ago"
+    }
   ];
 
   @override
@@ -38,13 +60,16 @@ class HistoryScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     'History',
-                    style: theme.textTheme.titleLarge?.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 26),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 26),
                   ),
                 ),
                 const SizedBox(height: 8.0),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _dummyHistory.length,
                     itemBuilder: (context, index) {
                       final session = _dummyHistory[index];
@@ -82,7 +107,7 @@ class _HistoryCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          debugPrint('Tapped history session: $title');
+          context.go('/history/$title');
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -115,9 +140,10 @@ class _HistoryCard extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
                       ),
                     ),
                     Text(

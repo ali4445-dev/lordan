@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:lordan_v1/global.dart';
 
 /// ✅ Sends a message to your Supabase Edge Function
 /// Supports both 'text' and 'tts' modes.
@@ -24,9 +25,9 @@ Future<Map<String, dynamic>> sendToLordan(
     },
     body: jsonEncode({
       'message': message,
-      'plan': plan,
-      'mode': mode,
-      'locale': locale,
+      'plan': GlobalData.plan,
+      'mode': GlobalData.mode,
+      'locale': GlobalData.language,
     }),
   );
 

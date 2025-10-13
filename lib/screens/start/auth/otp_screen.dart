@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/home_screen.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
@@ -114,10 +115,14 @@ class _OtpScreenState extends State<OtpScreen> {
                           pinController.setText(value);
                         },
                         onCompleted: (pin) async {
-                          await context
+                          bool success = await context
                               .read<AuthProvider>()
                               .verifyEmailOtp(pin);
-                          context.go(HomeScreen.routeName);
+                          if (success) {
+                            await UserStorageService.saveUserData();
+                            UserStorageService.printAll();
+                            context.go(HomeScreen.routeName);
+                          }
                         },
                         isCursorAnimationEnabled: true,
                         defaultPinTheme: defaultPinTheme(context),

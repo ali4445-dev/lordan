@@ -53,16 +53,19 @@ class UserProvider extends ChangeNotifier {
   Set<RoleType> get selectedRoles => Set.unmodifiable(_selectedRoles);
 
   /// All roles
-  List<RoleType> get freeRoles => RoleType.values.where((r) => !r.isPremium).toList();
+  List<RoleType> get freeRoles =>
+      RoleType.values.where((r) => !r.isPremium).toList();
 
-  List<RoleType> get premiumRoles => RoleType.values.where((r) => r.isPremium).toList();
+  List<RoleType> get premiumRoles =>
+      RoleType.values.where((r) => r.isPremium).toList();
 
   bool isRoleSelected(RoleType role) => _selectedRoles.contains(role);
 
   bool isRolePremium(RoleType role) => role.isPremium;
 
   /// Select / Unselect role
-  void toggleRole(RoleType role, {bool allowPremium = false, bool isPremiumUser = false}) {
+  void toggleRole(RoleType role,
+      {bool allowPremium = false, bool isPremiumUser = false}) {
     if (role.isPremium && !isPremiumUser && !allowPremium) {
       return;
     }
@@ -72,6 +75,13 @@ class UserProvider extends ChangeNotifier {
     } else {
       _selectedRoles.add(role);
     }
+    notifyListeners();
+  }
+
+  void restoreRolesFromNames(List<String> names) {
+    _selectedRoles
+      ..clear()
+      ..addAll(RoleType.values.where((r) => names.contains(r.name)));
     notifyListeners();
   }
 
@@ -89,6 +99,17 @@ class UserProvider extends ChangeNotifier {
 
   void toggleTheme(bool isDarkMode) {
     _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+
+  void setThemeFromString(String value) {
+    if (value.contains('dark')) {
+      _themeMode = ThemeMode.dark;
+    } else if (value.contains('light')) {
+      _themeMode = ThemeMode.light;
+    } else {
+      _themeMode = ThemeMode.system;
+    }
     notifyListeners();
   }
 }

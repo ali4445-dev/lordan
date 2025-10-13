@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lordan_v1/methods/google_signing.dart';
 import 'package:lordan_v1/screens/start/components/header_section.dart';
 import 'package:lordan_v1/screens/start/auth/components/my_phone_input.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:provider/provider.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/theme.dart';
@@ -169,7 +170,9 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                 ),
                 ToggleButton(
                   label: "Phone",
-                  isActive: loginMethod == LoginMethod.phone,
+                  // isActive: loginMethod == LoginMethod.phone,
+                  isActive: false,
+
                   onTap: () => setState(() {
                     loginMethod = LoginMethod.phone;
                   }),
@@ -335,7 +338,9 @@ class _SocialSignInButtons extends StatelessWidget {
               }
 
               if (successLogin) {
+                UserStorageService.saveUserData();
                 // ✅ Save session or navigate now
+                // context.read<AuthProvider>().saveUserSession();
 
                 context.go(SplashScreen.routeName);
               } else {
@@ -355,7 +360,8 @@ class _SocialSignInButtons extends StatelessWidget {
           label: 'Continue with Apple',
           color: Colors.black,
           textColor: Colors.white,
-          onPressed: () => authProvider.mockSignInApple(),
+          // onPressed: () => authProvider.mockSignInApple(),
+          onPressed: () {},
         ),
       ],
     );

@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/service/audio_service.dart';
 import 'package:lordan_v1/service/chat_service.dart';
+import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:uuid/uuid.dart';
 import '../models/message.dart';
 
 enum VoiceState { idle, listening, processing, speaking }
@@ -172,19 +176,35 @@ class VoiceChatProvider with ChangeNotifier {
     // Process "AI" response (placeholder)
     _state = VoiceState.processing;
     notifyListeners();
+    ChatStorageService.addMessage(
+        chatMode: GlobalData.mode!,
+        message: Message(
+            chatMode: GlobalData.mode!,
+            id: const Uuid().v4(),
+            role: 'user',
+            content: _transcript,
+            createdAt: DateTime.now()));
 
     // TODO: Replace this with actual API call
-    final aiResponse = await sendToLordan(_transcript, mode: 'tts');
+    final aiResponse = await sendToLordan(_transcript);
 
     _messages.add(Message(
       id: DateTime.now().toString(),
       role: 'assistant',
-      content: aiResponse['audio_b64'],
+      content: aiResponse['reply'],
       createdAt: DateTime.now(),
     ));
 
     // Speak the response
-    speak(aiResponse['audio_b64']);
+    await speak(aiResponse['reply']);
+    ChatStorageService.addMessage(
+        chatMode: GlobalData.mode!,
+        message: Message(
+            chatMode: GlobalData.mode!,
+            id: const Uuid().v4(),
+            role: 'assistant',
+            content: aiResponse["reply"],
+            createdAt: DateTime.now()));
     _transcript = '';
   }
 

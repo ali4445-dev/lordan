@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:lordan_v1/models/role_model.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// COMPONENT: AuthProvider
@@ -11,6 +14,9 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   String _plan = 'Free';
   bool _isLoading = false;
+  String? _uid;
+  String? _mode;
+  String? _language;
 
   // Getters
   Session? get getSession => _session;
@@ -19,6 +25,10 @@ class AuthProvider extends ChangeNotifier {
   String get plan => _plan;
   bool get isLoading => _isLoading;
   bool get isSignedIn => _email != null;
+  String? get getUid => _uid;
+  String? get getPlan => _plan;
+  String? get getMode => _mode;
+  String? get getLanguage => _language;
 
   /// COMPONENT: Mock Email Sign In
   /// Simulates email authentication with loading state
@@ -47,7 +57,7 @@ class AuthProvider extends ChangeNotifier {
 // Verify
   }
 
-  Future<void> verifyEmailOtp(String userOtp) async {
+  Future<bool> verifyEmailOtp(String userOtp) async {
     final response = await Supabase.instance.client.auth.verifyOTP(
       type: OtpType.email,
       email: getEmail,
@@ -56,6 +66,9 @@ class AuthProvider extends ChangeNotifier {
 
     if (response.session != null) {
       print('✅ Logged in via OTP code');
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -66,58 +79,58 @@ class AuthProvider extends ChangeNotifier {
 
   /// COMPONENT: Mock Google Sign In
   /// Simulates Google OAuth with loading state
-  Future<void> mockSignInGoogle() async {
-    if (_isLoading) return;
+  // Future<void> mockSignInGoogle() async {
+  //   if (_isLoading) return;
 
-    _isLoading = true;
-    notifyListeners();
+  //   _isLoading = true;
+  //   notifyListeners();
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+  //   // Simulate network delay
+  //   await Future.delayed(const Duration(seconds: 2));
 
-    _email = 'user@gmail.com';
-    _isLoading = false;
-    notifyListeners();
-  }
+  //   _email = 'user@gmail.com';
+  //   _isLoading = false;
+  //   notifyListeners();
+  // }
 
   /// COMPONENT: Mock Apple Sign In
   /// Simulates Apple Sign In with loading state
-  Future<void> mockSignInApple() async {
-    if (_isLoading) return;
+  // Future<void> mockSignInApple() async {
+  //   if (_isLoading) return;
 
-    _isLoading = true;
-    notifyListeners();
+  //   _isLoading = true;
+  //   notifyListeners();
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+  //   // Simulate network delay
+  //   await Future.delayed(const Duration(seconds: 2));
 
-    _email = 'user@icloud.com';
-    _isLoading = false;
-    notifyListeners();
-  }
+  //   _email = 'user@icloud.com';
+  //   _isLoading = false;
+  //   notifyListeners();
+  // }
 
   /// COMPONENT: Mock Sign Out
   /// Simulates sign out process with loading state
-  Future<void> mockSignOut() async {
-    if (_isLoading) return;
+  // Future<void> mockSignOut() async {
+  //   if (_isLoading) return;
 
-    _isLoading = true;
-    notifyListeners();
+  //   _isLoading = true;
+  //   notifyListeners();
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
+  //   // Simulate network delay
+  //   await Future.delayed(const Duration(milliseconds: 800));
 
-    _email = null;
-    _isLoading = false;
-    notifyListeners();
-  }
+  //   _email = null;
+  //   _isLoading = false;
+  //   notifyListeners();
+  // }
 
-  /// COMPONENT: Set Plan (for demo purposes)
-  /// Updates the user's plan status
-  void setPlan(String newPlan) {
-    _plan = newPlan;
-    notifyListeners();
-  }
+  // /// COMPONENT: Set Plan (for demo purposes)
+  // /// Updates the user's plan status
+  // void setPlan(String newPlan) {
+  //   _plan = newPlan;
+  //   notifyListeners();
+  // }
 
   /// COMPONENT: Reset Auth State
   /// Resets all authentication state (useful for testing)
@@ -128,7 +141,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateSession() async {
+  Future<void> updateSession({Role? role}) async {
     _isLoading = true;
     notifyListeners();
 
@@ -139,6 +152,9 @@ class AuthProvider extends ChangeNotifier {
       if (currentSession != null) {
         _session = currentSession;
         _user = currentSession.user;
+        _email = getUser!.email;
+        _uid = getUser!.id;
+        _mode = role!.name;
         debugPrint('✅ Existing session restored for: ${_user?.email}');
       } else {
         _session = null;
@@ -160,6 +176,20 @@ class AuthProvider extends ChangeNotifier {
     await _supabase.auth.signOut();
     _session = null;
     _user = null;
+    UserStorageService.clear();
     notifyListeners();
   }
+
+  // Future<void> saveUserSession() async {
+  //   final user = Supabase.instance.client.auth.currentUser;
+
+  //   // if (user != null) {
+  //   //   final sessionBox = await Hive.openBox('session');
+  //   //   await sessionBox.put('email', user.email);
+  //   //   await sessionBox.put('userId', user.id);
+  //   //    await sessionBox.put('language',nu);
+  //   //   await sessionBox.put('userId', user.id);
+
+  //   // }
+  // }
 }

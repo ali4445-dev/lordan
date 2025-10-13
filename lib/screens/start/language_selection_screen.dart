@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/start/onboarding_screen.dart';
 import 'package:lordan_v1/utils/components/primary_button.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +18,8 @@ class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  State<LanguageSelectionScreen> createState() =>
+      _LanguageSelectionScreenState();
 }
 
 class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
@@ -45,16 +48,24 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
         return label.contains(query) || code.contains(query);
       }).toList();
 
+  void saveUserSession() async {
+    // await context.read<AuthProvider>().saveUserSession();
+  }
+
   @override
   void initState() {
     super.initState();
+    saveUserSession();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.setLocale(_filteredLocales.first);
       for (var locale in _allLocales) {
-        final String svgPath = 'assets/country_flags/${locale.languageCode}.svg';
+        final String svgPath =
+            'assets/country_flags/${locale.languageCode}.svg';
         final loader = SvgAssetLoader(svgPath);
-        svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+        svg.cache
+            .putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
       }
     });
   }
@@ -91,23 +102,27 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "Select Language",
-                      style: theme.textTheme.headlineSmall!.copyWith(color: Colors.white),
+                      style: theme.textTheme.headlineSmall!
+                          .copyWith(color: Colors.white),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       "Choose your preferred language to start your conversations.",
-                      style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white.withValues(alpha: 0.9)),
+                      style: theme.textTheme.bodyMedium!
+                          .copyWith(color: Colors.white.withValues(alpha: 0.9)),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       "You Selected",
-                      style: theme.textTheme.labelLarge!.copyWith(color: Colors.white),
+                      style: theme.textTheme.labelLarge!
+                          .copyWith(color: Colors.white),
                     ),
                     const SizedBox(height: 8.0),
                     Container(
@@ -115,7 +130,8 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(50),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                        border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.25)),
                       ),
                       child: ListTile(
                         leading: SvgPicture.asset(
@@ -123,13 +139,18 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                           width: 24,
                           fit: BoxFit.cover,
                         ),
-                        title: Text(userProvider.labelFor(selectedLocale ?? _allLocales.first), style: theme.textTheme.labelLarge!.copyWith(color: Colors.white, fontSize: 16)),
+                        title: Text(
+                            userProvider
+                                .labelFor(selectedLocale ?? _allLocales.first),
+                            style: theme.textTheme.labelLarge!
+                                .copyWith(color: Colors.white, fontSize: 16)),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       "All languages",
-                      style: theme.textTheme.labelLarge!.copyWith(color: Colors.white),
+                      style: theme.textTheme.labelLarge!
+                          .copyWith(color: Colors.white),
                     ),
                     const SizedBox(height: 8.0),
                     Container(
@@ -137,19 +158,31 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(20.0),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                        border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.25)),
                       ),
                       child: ListView.separated(
                         itemCount: _filteredLocales.length,
-                        separatorBuilder: (context, index) => Divider(height: 8.0, color: kDividerColor),
+                        separatorBuilder: (context, index) =>
+                            Divider(height: 8.0, color: kDividerColor),
                         itemBuilder: (context, index) {
                           final locale = _filteredLocales[index];
-                          final isSelected = selectedLocale?.languageCode == locale.languageCode;
+                          final isSelected = selectedLocale?.languageCode ==
+                              locale.languageCode;
                           return ListTile(
-                            onTap: () => userProvider.setLocale(locale),
-                            leading: SvgPicture.asset('assets/country_flags/${locale.languageCode}.svg', width: 24),
-                            title: Text(userProvider.labelFor(locale), style: theme.textTheme.labelLarge!.copyWith(color: Colors.white, fontSize: 16)),
-                            trailing: isSelected ? const Icon(Icons.check, color: Colors.white) : const SizedBox(),
+                            onTap: () {
+                              GlobalData.setLanguage(locale.languageCode);
+                              userProvider.setLocale(locale);
+                            },
+                            leading: SvgPicture.asset(
+                                'assets/country_flags/${locale.languageCode}.svg',
+                                width: 24),
+                            title: Text(userProvider.labelFor(locale),
+                                style: theme.textTheme.labelLarge!.copyWith(
+                                    color: Colors.white, fontSize: 16)),
+                            trailing: isSelected
+                                ? const Icon(Icons.check, color: Colors.white)
+                                : const SizedBox(),
                           );
                         },
                       ),

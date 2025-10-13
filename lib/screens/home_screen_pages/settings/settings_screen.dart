@@ -129,11 +129,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/about_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/components/setting_tile.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/privacy_policy_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/terms_of_service_screen.dart';
+import 'package:lordan_v1/screens/start/welcome_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/user_provider.dart';
@@ -174,7 +176,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icon(Icons.account_circle, size: 100, color: Colors.white),
                     Text(
                       'John Doe',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -183,10 +188,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSection(
                   children: [
                     SettingTile(
-                      leading: const FaIcon(FontAwesomeIcons.earthAmericas, color: Colors.white),
+                      leading: const FaIcon(FontAwesomeIcons.earthAmericas,
+                          color: Colors.white),
                       title: 'Languages',
-                      titleStyle: theme.textTheme.labelLarge?.copyWith(color: Colors.white),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      titleStyle: theme.textTheme.labelLarge
+                          ?.copyWith(color: Colors.white),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          color: Colors.white),
                     ),
                     Divider(
                       color: Colors.white.withValues(alpha: 0.25),
@@ -196,7 +204,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ThemeToggleTile(
                       iconColor: Colors.white,
                       isDarkMode: userProvider.themeMode == ThemeMode.dark,
-                      titleStyle: theme.textTheme.labelLarge?.copyWith(color: Colors.white),
+                      titleStyle: theme.textTheme.labelLarge
+                          ?.copyWith(color: Colors.white),
                       onToggle: (value) {
                         // userProvider.toggleTheme(value);
                       },
@@ -208,7 +217,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSection(
                   children: [
                     ListTile(
-                      leading: const FaIcon(FontAwesomeIcons.solidCirclePlay, color: Colors.white),
+                      leading: const FaIcon(FontAwesomeIcons.solidCirclePlay,
+                          color: Colors.white),
                       title: const Text(
                         'Auto-play voice replies',
                         style: TextStyle(color: Colors.white),
@@ -219,7 +229,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           setState(() => _autoPlayReplies = value);
                         },
                         activeTrackColor: Colors.blueAccent,
-                        inactiveTrackColor: Colors.white.withValues(alpha: 0.25),
+                        inactiveTrackColor:
+                            Colors.white.withValues(alpha: 0.25),
                       ),
                     ),
                   ],
@@ -230,10 +241,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     SettingTile(
                       onTap: () => context.push(CompanyScreen.routeName),
-                      leading: const FaIcon(FontAwesomeIcons.fileContract, color: Colors.white),
+                      leading: const FaIcon(FontAwesomeIcons.fileContract,
+                          color: Colors.white),
                       title: 'Terms of Use',
                       titleStyle: const TextStyle(color: Colors.white),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          color: Colors.white),
                     ),
                     Divider(
                       color: Colors.white.withValues(alpha: 0.25),
@@ -242,10 +255,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     SettingTile(
                       onTap: () => context.push(FaqScreen.routeName),
-                      leading: const FaIcon(FontAwesomeIcons.userShield, color: Colors.white),
+                      leading: const FaIcon(FontAwesomeIcons.userShield,
+                          color: Colors.white),
                       title: 'FAQ / Trust & Safety',
                       titleStyle: const TextStyle(color: Colors.white),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          color: Colors.white),
                     ),
                   ],
                 ),
@@ -253,11 +268,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Logout
                 _buildSection(
                   children: [
-                    const SettingTile(
-                      leading: FaIcon(FontAwesomeIcons.rightFromBracket, color: Colors.redAccent),
+                    SettingTile(
+                      leading: const FaIcon(FontAwesomeIcons.rightFromBracket,
+                          color: Colors.redAccent),
                       title: 'Logout',
                       titleStyle: TextStyle(color: Colors.white),
-                      trailing: Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          color: Colors.white),
+                      onTap: () async {
+                        await context.read<AuthProvider>().signOut();
+                        context.go(WelcomeScreen.routeName);
+                      },
                     ),
                   ],
                 ),

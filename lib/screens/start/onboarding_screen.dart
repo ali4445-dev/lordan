@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/start/auth/login_screen.dart';
 import 'package:lordan_v1/screens/start/components/header_section.dart';
 import 'package:provider/provider.dart';
@@ -104,8 +106,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 isPremiumUser:
                                     context.read<UserProvider>().isPremium,
                               );
+
+                          GlobalData.toggleRole(
+                            role,
+                            isPremiumUser:
+                                context.read<UserProvider>().isPremium,
+                          );
                         },
-                        onPremiumTap: () {},
+                        onPremiumTap: () async {},
                       ),
                     ),
                   ),
@@ -120,7 +128,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     enabled: userProvider.selectedRoles.isNotEmpty,
                     onPressed: userProvider.selectedRoles.isEmpty
                         ? null
-                        : () => context.push(LoginScreen.routeName),
+                        : () async {
+                            // await context.read<AuthProvider>().updateSession();
+                            context.push(LoginScreen.routeName);
+                          },
                   ),
                 ),
               ],
@@ -174,8 +185,10 @@ class _RolesGrid extends StatelessWidget {
           role: role,
           onTap: () {
             if (role.isPremium && !context.read<UserProvider>().isPremium) {
+              print("Premium Tap called");
               onPremiumTap();
             } else {
+              print("Role Tap Called");
               onRoleTap(role);
             }
           },

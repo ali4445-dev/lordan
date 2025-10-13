@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/models/history_item.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/about_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/terms_of_service_screen.dart';
@@ -64,7 +65,9 @@ final GoRouter router = GoRouter(
       final protectedTargets = <String>{
         // Here we can add protected routes that require auth
       };
-      return protectedTargets.contains(goingTo) ? RoutePaths.login : RoutePaths.welcome;
+      return protectedTargets.contains(goingTo)
+          ? RoutePaths.login
+          : RoutePaths.welcome;
     }
 
     // Premium guard for voice chat and future premium-only routes
@@ -143,6 +146,20 @@ final GoRouter router = GoRouter(
       path: RoutePaths.settings,
       name: 'settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/history/:mode',
+      name: 'History',
+      builder: (context, state) {
+        final auth = context.read<AuthProvider>();
+        final email = auth.getEmail!; // Extracted from provider
+        final mode = state.pathParameters['mode']!; // From URL
+
+        return HistoryItem(
+          email: email,
+          chatMode: mode,
+        );
+      },
     ),
     GoRoute(
       path: RoutePaths.faq,

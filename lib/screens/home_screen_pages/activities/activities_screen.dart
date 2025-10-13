@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/paywall/paywall_screen.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/utils/components/loading_background.dart';
 import 'package:lordan_v1/utils/components/search_field.dart';
 import 'package:provider/provider.dart';
@@ -32,14 +33,16 @@ const _dummyRoles = [
   Role(
     id: '2',
     name: 'Logic Coach',
-    description: 'Practice logic skills, develop critical thinking, solve problems.',
+    description:
+        'Practice logic skills, develop critical thinking, solve problems.',
     isPremium: true,
     isFeatured: true,
   ),
   Role(
     id: '3',
     name: 'Debate Practice',
-    description: 'Practice public speaking, develop argumentation, gain confidence.',
+    description:
+        'Practice public speaking, develop argumentation, gain confidence.',
     isPremium: false,
     isFeatured: false,
   ),
@@ -110,6 +113,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+
     _initialData = _loadInitialData();
   }
 
@@ -122,9 +126,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         // _supabaseService.fetchRoles(),
       ]);
 
+      final userRoles = await UserStorageService.getSavedRoles();
+
+      final Profile = await UserStorageService.loadUserData();
+
       _userProfile = results[0] as UserProfile;
       _featuredRoles = results[1] as List<Role>;
       _allRoles = results[2] as List<Role>;
+
+      // for (var role in collection) {
+
+      // }
+
       return results;
     } catch (e) {
       // TODO: Remove dummy data once Supabase is connected
@@ -142,7 +155,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
     // Apply search
     if (query.isNotEmpty) {
-      roles = roles.where((role) => role.name.toLowerCase().contains(query.toLowerCase()) || role.description.toLowerCase().contains(query.toLowerCase())).toList();
+      roles = roles
+          .where((role) =>
+              role.name.toLowerCase().contains(query.toLowerCase()) ||
+              role.description.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     }
 
     // Apply filter
@@ -174,7 +191,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     } catch (e) {
       // TODO: Remove dummy data once Supabase is connected
       if (mounted) {
-        setState(() => _allRoles = _filterDummyRoles(_searchQuery, _selectedFilter));
+        setState(
+            () => _allRoles = _filterDummyRoles(_searchQuery, _selectedFilter));
       }
     }
   }
@@ -243,7 +261,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           _buildTopBar(theme, isPremiumUser: false),
 
           // ── Search Field
-          SearchField(searchController: _searchController, hintText: 'Search for Role',),
+          SearchField(
+            searchController: _searchController,
+            hintText: 'Search for Role',
+          ),
 
           // ── All Roles Grid
           _buildRolesGrid(theme),
@@ -313,7 +334,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                       ],
                     ),
               border: Border.all(
-                color: isPremiumUser ? Colors.blue.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.2),
+                color: isPremiumUser
+                    ? Colors.blue.withValues(alpha: 0.8)
+                    : Colors.white.withValues(alpha: 0.2),
                 width: 1.2,
               ),
             ),
@@ -343,7 +366,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               const SizedBox(width: 8),
               Text(
                 'Featured Roles',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ],
           ),
@@ -641,7 +665,8 @@ class _RoleCard extends StatelessWidget {
                 top: 10,
                 right: 10,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
@@ -650,14 +675,16 @@ class _RoleCard extends StatelessWidget {
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.45)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.45)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SvgPicture.asset(
                         'assets/icons/premium_crown.svg',
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                            Colors.white, BlendMode.srcIn),
                         width: 14.0,
                       ),
                       const SizedBox(width: 4),

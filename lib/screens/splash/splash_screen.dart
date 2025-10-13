@@ -244,6 +244,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
+import 'package:lordan_v1/providers/auth_provider.dart';
+import 'package:lordan_v1/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/user_provider.dart';
@@ -259,7 +262,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _logoScale;
   late final Animation<double> _logoOpacity;
@@ -300,11 +304,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _checkFirstTimeUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isFirstTime = prefs.getBool('isFirstTime') ?? true;
+    var box = await Hive.openBox('userBox');
+
+    _isFirstTime = await box.get('email') ?? false;
 
     if (_isFirstTime) {
-      await prefs.setBool('isFirstTime', false);
+      // await context.read<AuthProvider>().saveUserSession();
     }
     setState(() {});
   }
@@ -373,7 +378,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     });
   }
 
-  void _navigateToNextScreen() {
+  void _navigateToNextScreen() async {
     context.go(PaywallScreen.routeName);
   }
 
@@ -472,7 +477,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       scale: _logoScale.value,
                       child: Opacity(
                         opacity: _logoOpacity.value,
-                        child:  Text(
+                        child: Text(
                           'Your Private AI Conversation Partner',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: Colors.white,
@@ -487,18 +492,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
                 // Benefits / Motivational text
                 // if (_showBenefits)
-                  AnimatedOpacity(
-                    opacity: _showBenefits ? 1 : 0,
-                    duration: const Duration(milliseconds: 400),
-                    child: Text(
-                      _benefits[_currentBenefitIndex],
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.normal,
-                        letterSpacing: 1.5,
-                      ),
+                AnimatedOpacity(
+                  opacity: _showBenefits ? 1 : 0,
+                  duration: const Duration(milliseconds: 400),
+                  child: Text(
+                    _benefits[_currentBenefitIndex],
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: 1.5,
                     ),
                   ),
+                ),
                 const SizedBox(height: 80),
               ],
             ),

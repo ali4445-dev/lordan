@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/models/message.dart';
+import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/chat/chat_voice_screen.dart';
+import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:lordan_v1/utils/components/primary_back_button.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/components/gradient_backdrop.dart';
@@ -303,9 +308,24 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                 : () async {
                                     final message = value.text;
                                     _textController.clear();
+                                    ChatStorageService.addMessage(
+                                        chatMode: roleName!,
+                                        message: Message(
+                                            chatMode: roleName,
+                                            id: const Uuid().v4(),
+                                            role: 'user',
+                                            content: message,
+                                            createdAt: DateTime.now()));
+                                    print("Chat addet to database");
+                                    GlobalData.mode = roleName;
+
                                     await context
                                         .read<ChatProvider>()
-                                        .sendMessage(message);
+                                        .sendMessage(message,
+                                            mode: roleName!,
+                                            isPremium: isPremium!,
+                                            language: GlobalData.language!);
+
                                     _scrollToBottom();
                                   },
                       );

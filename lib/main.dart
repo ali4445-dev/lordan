@@ -2,6 +2,12 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lordan_v1/models/chat_mode.dart';
+import 'package:lordan_v1/models/message.dart';
+import 'package:lordan_v1/models/user_chat_data.dart';
 import 'package:lordan_v1/providers/stats_provider.dart';
 import 'package:lordan_v1/service/supabase_service.dart';
 import 'dart:async';
@@ -32,6 +38,18 @@ Future<void> main() async {
         stackTrace: details.stack,
       );
     };
+
+    await Hive.initFlutter();
+
+    Hive.registerAdapter(MessageAdapter());
+    Hive.registerAdapter(ChatModeAdapter());
+    Hive.registerAdapter(UserChatDataAdapter());
+
+    Stripe.publishableKey = dotenv.env["STRIPE_PUBLISHED_KEY"] ?? '';
+    await Stripe.instance.applySettings();
+
+    await Hive.openBox('userBox'); // For generic storage (UserStorageService)
+    await Hive.openBox('chatBox'); // For chat data
 
     await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL']!,

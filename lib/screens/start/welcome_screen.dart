@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
+import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
+import 'package:lordan_v1/screens/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/user_provider.dart';
 import '../../utils/components/primary_button.dart';
@@ -17,7 +21,8 @@ class WelcomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
     bool isDark = userProvider.themeMode == ThemeMode.dark;
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
+    final textColor =
+        isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -28,7 +33,8 @@ class WelcomeScreen extends StatelessWidget {
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -99,8 +105,17 @@ class WelcomeScreen extends StatelessWidget {
                       horizontalMargin: 0,
                       label: "Start Chat",
                       enabled: true,
-                      onPressed: () {
-                        context.push(LanguageSelectionScreen.routeName);
+                      onPressed: () async {
+                        final sessionBox = await Hive.openBox('session');
+
+                        final user =
+                            await Supabase.instance.client.auth.currentUser;
+
+                        if (user != null) {
+                          context.push(HomeScreen.routeName);
+                        } else {
+                          context.push(LanguageSelectionScreen.routeName);
+                        }
                       },
                     ),
                     const SizedBox(height: 12),
@@ -109,7 +124,8 @@ class WelcomeScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Chat Log coming soon...")),
+                          const SnackBar(
+                              content: Text("Chat Log coming soon...")),
                         );
                       },
                       child: Text(
@@ -120,7 +136,6 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),

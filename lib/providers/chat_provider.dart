@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/service/audio_service.dart';
 import 'package:lordan_v1/service/chat_service.dart';
+import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import '../models/message.dart';
 
@@ -23,7 +27,10 @@ class ChatProvider with ChangeNotifier {
   bool get hasContext => _hasContext;
 
   // Simulated streaming response - replace with actual API call
-  Future<void> sendMessage(String content) async {
+  Future<void> sendMessage(String content,
+      {String mode = 'text',
+      bool isPremium = false,
+      String language = 'en'}) async {
     if (content.trim().isEmpty) return;
 
     try {
@@ -45,36 +52,57 @@ class ChatProvider with ChangeNotifier {
       final responseId = _uuid.v4();
 
       final Map<String, dynamic> jsonData = await sendToLordan(content);
-      ;
 
-// Extract just the 'reply' parameter
-      final String botReply = jsonData['reply'] ?? 'No reply found';
-      String responseText = '';
+      if (mode == 'tts') {
+        // Get the Base64 audio string
+        final audioB64 = jsonData['audio_b64'];
 
-      // 🟢 Step 2: Stream the bot reply word by word (keep original UI animation)
-      for (final word in botReply.split(' ')) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        responseText += '$word ';
+// Play it
+        if (audioB64 != null && audioB64.isNotEmpty) {
+          await playBase64Audio(audioB64);
+        } else {
+          print("No audio returned from AI.");
+        }
+      } else {
+        // Extract just the 'reply' parameter
+        final String botReply = jsonData['reply'] ?? 'No reply found';
+        String responseText = '';
 
+        // 🟢 Step 2: Stream the bot reply word by word (keep original UI animation)
+        for (final word in botReply.split(' ')) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          responseText += '$word ';
+
+          _messages.removeWhere((m) => m.id == responseId);
+          _messages.add(Message(
+            id: responseId,
+            role: 'assistant',
+            content: responseText.trim(),
+            createdAt: DateTime.now(),
+            isStreaming: true,
+          ));
+          notifyListeners();
+        }
+
+        // 🟢 Step 3: Add final message (no streaming flag)
         _messages.removeWhere((m) => m.id == responseId);
         _messages.add(Message(
           id: responseId,
           role: 'assistant',
           content: responseText.trim(),
           createdAt: DateTime.now(),
-          isStreaming: true,
         ));
-        notifyListeners();
-      }
 
-      // 🟢 Step 3: Add final message (no streaming flag)
-      _messages.removeWhere((m) => m.id == responseId);
-      _messages.add(Message(
-        id: responseId,
-        role: 'assistant',
-        content: responseText.trim(),
-        createdAt: DateTime.now(),
-      ));
+        ChatStorageService.addMessage(
+            chatMode: GlobalData.mode!,
+            message: Message(
+              id: responseId,
+              role: 'assistant',
+              content: responseText.trim(),
+              createdAt: DateTime.now(),
+            ));
+        print("Chat addet to database");
+      }
     } catch (e) {
       _error = e.toString();
     } finally {

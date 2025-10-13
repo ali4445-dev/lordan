@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lordan_v1/screens/home_screen_pages/history/chat_history_screen.dart';
 
 import 'home_screen_pages/activities/activities_screen.dart';
 import 'home_screen_pages/history/history_screen.dart';
@@ -17,11 +18,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final List<Widget> _pages = const [
     ActivitiesScreen(),
-    HistoryScreen(),
+    ChatHistoryScreen(),
     SettingsScreen(),
   ];
 
@@ -39,24 +41,46 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        unselectedItemColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
         items: [
           BottomNavigationBarItem(
               icon: SvgPicture.asset(
                 'assets/icons/home.svg',
-                colorFilter: ColorFilter.mode(_currentIndex == 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface.withValues(alpha: 0.6), BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    _currentIndex == 0
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.6),
+                    BlendMode.srcIn),
               ),
               label: 'Home'),
           BottomNavigationBarItem(
               icon: SvgPicture.asset(
                 'assets/icons/history.svg',
-                colorFilter: ColorFilter.mode(_currentIndex == 1 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface.withValues(alpha: 0.6), BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    _currentIndex == 1
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.6),
+                    BlendMode.srcIn),
               ),
               label: 'History'),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               'assets/icons/setting.svg',
-              colorFilter: ColorFilter.mode(_currentIndex == 2 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface.withValues(alpha: 0.6), BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                  _currentIndex == 2
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.6),
+                  BlendMode.srcIn),
             ),
             label: 'Settings',
           ),

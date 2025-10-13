@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lordan_v1/screens/home_screen.dart';
+import 'package:lordan_v1/screens/paywall/stripe_payment_screen.dart';
 import 'package:lordan_v1/utils/components/primary_back_button.dart';
 import 'package:provider/provider.dart';
 
@@ -21,9 +22,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _isYearlySelected = false;
 
   final List<Map<String, String>> _features = const [
-    {"title": "All Premium Roles", "description": "Access 20+ conversation roles"},
-    {"title": "Voice Conversations", "description": "Natural voice interactions"},
-    {"title": "Conversation History", "description": "Resume past sessions anytime"},
+    {
+      "title": "All Premium Roles",
+      "description": "Access 20+ conversation roles"
+    },
+    {
+      "title": "Voice Conversations",
+      "description": "Natural voice interactions"
+    },
+    {
+      "title": "Conversation History",
+      "description": "Resume past sessions anytime"
+    },
     {"title": "Advanced AI", "description": "Enhanced context understanding"},
     {"title": "Priority Support", "description": "Get help when you need it"},
   ];
@@ -88,7 +98,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                               child: _PlanButton(
                                 title: 'Monthly',
                                 isSelected: !_isYearlySelected,
-                                onTap: () => setState(() => _isYearlySelected = false),
+                                onTap: () =>
+                                    setState(() => _isYearlySelected = false),
                               ),
                             ),
                           ),
@@ -102,7 +113,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                   child: _PlanButton(
                                     title: 'Yearly',
                                     isSelected: _isYearlySelected,
-                                    onTap: () => setState(() => _isYearlySelected = true),
+                                    onTap: () => setState(
+                                        () => _isYearlySelected = true),
                                   ),
                                 ),
                                 Positioned(
@@ -203,7 +215,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ),
                       ),
                       child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pushNamed('/verify'),
+                        onPressed: () {
+                          initPaymentSheet(context, 40);
+                        },
+                        // Navigator.of(context).pushNamed('/verify'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -227,7 +242,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       'Secure payments • Cancel anytime • Privacy-first',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6), // opacity: 0.6
+                        color:
+                            Colors.white.withValues(alpha: 0.6), // opacity: 0.6
                         fontSize: 12,
                       ),
                     ),
@@ -295,7 +311,8 @@ class _PlanWrapper extends StatelessWidget {
         color: Colors.white.withAlpha(20),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFFFFFFFF).withValues(alpha: isSelected ? 0.8 : 0.4),
+          color:
+              const Color(0xFFFFFFFF).withValues(alpha: isSelected ? 0.8 : 0.4),
           width: isSelected ? 1.5 : 1,
         ),
       ),
