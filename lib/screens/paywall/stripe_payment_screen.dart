@@ -23,7 +23,7 @@ Future<Map<String, dynamic>?> makePaymentIntent({
       Uri.parse('https://api.stripe.com/v1/payment_intents'),
       body: paymentInfo,
       headers: {
-        'Authorization': 'Bearer ${dotenv.env["STRIPE_SECRET_KEY"]}',
+        'Authorization': 'Bearer ${dotenv.env["STRIPE_ANON_KEY"]}',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     );
