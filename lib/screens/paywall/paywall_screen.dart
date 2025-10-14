@@ -216,9 +216,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          // initPaymentSheet(context, 40);
-                          Navigator.of(context).pushNamed('/verify');
+                          initPaymentSheet(context, 40);
                         },
+                        // Navigator.of(context).pushNamed('/verify'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
