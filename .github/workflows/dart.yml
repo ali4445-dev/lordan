@@ -26,10 +26,16 @@ jobs:
         run: ls -R ios   # ✅ Debug: lists all iOS files so you can confirm Runner.xcodeproj exists
 
       - name: Build unsigned IPA
-        run: flutter build ipa --no-codesign
+        run: |
+          flutter build ipa --no-codesign
+          mkdir -p build/ios/ipa
+          # ✅ Copy built app from archive and convert to .ipa
+          cp -R build/ios/archive/Runner.xcarchive/Products/Applications/*.app build/ios/ipa/
+          cd build/ios/ipa
+          zip -r Runner.ipa *.app
 
       - name: Upload unsigned IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: unsigned-ipa
-          path: build/ios/ipa/*.ipa
+          path: build/ios/ipa/Runner.ipa
