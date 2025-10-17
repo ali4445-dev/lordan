@@ -45,8 +45,8 @@ Future<void> main() async {
     Hive.registerAdapter(ChatModeAdapter());
     Hive.registerAdapter(UserChatDataAdapter());
 
-    Stripe.publishableKey = dotenv.env["STRIPE_PUBLISHED_KEY"] ?? '';
-    await Stripe.instance.applySettings();
+    // Stripe.publishableKey = dotenv.env["STRIPE_PUBLISHED_KEY"] ?? '';
+    // await Stripe.instance.applySettings();
 
     await Hive.openBox('userBox'); // For generic storage (UserStorageService)
     await Hive.openBox('chatBox'); // For chat data

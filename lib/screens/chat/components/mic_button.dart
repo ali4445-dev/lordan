@@ -4,10 +4,16 @@ import '../../../theme.dart';
 class MicButton extends StatefulWidget {
   final bool isListening;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final VoidCallback onLongPressUp;
   final String? logoAsset;
+  final bool? isPremium;
 
   const MicButton({
     super.key,
+    required this.onLongPress,
+    required this.onLongPressUp,
+    required this.isPremium,
     required this.isListening,
     required this.onTap,
     this.logoAsset,
@@ -83,6 +89,8 @@ class _MicButtonState extends State<MicButton> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      onLongPressUp: widget.onLongPressUp,
       child: AnimatedBuilder(
         animation: Listenable.merge([_pulseController, _rotateController]),
         builder: (context, child) {

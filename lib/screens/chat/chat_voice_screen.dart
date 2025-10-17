@@ -25,7 +25,7 @@ class ChatVoiceScreen extends StatefulWidget {
     this.roleId,
     this.roleName,
     this.roleDescription,
-    this.isPremium = true,
+    this.isPremium = false,
   });
 
   @override
@@ -201,10 +201,20 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                 return Column(
                   children: [
                     MicButton(
-                      isListening: false,
-                      onTap: () => provider.startListening(),
-                      logoAsset: 'assets/brand_logos/logo_png.png',
-                    ),
+                        isPremium: widget.isPremium,
+                        isListening: false,
+                        onTap: () => provider.startListening(),
+                        logoAsset: 'assets/brand_logos/logo_png.png',
+                        onLongPress: !widget.isPremium
+                            ? () {
+                                provider.startListening();
+                              }
+                            : () {},
+                        onLongPressUp: !widget.isPremium
+                            ? () {
+                                provider.stopListening();
+                              }
+                            : () {}),
                     const SizedBox(height: 8),
                     Text(
                       provider.errorMessage ?? 'Microphone access needed',
@@ -218,14 +228,27 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
               }
 
               return MicButton(
+                isPremium: widget.isPremium,
                 isListening: provider.isRecording,
-                onTap: () {
-                  if (provider.isRecording) {
-                    provider.stopListening();
-                  } else {
-                    provider.startListening();
-                  }
-                },
+                onTap: widget.isPremium
+                    ? () {
+                        if (provider.isRecording) {
+                          provider.stopListening();
+                        } else {
+                          provider.startListening();
+                        }
+                      }
+                    : () {},
+                onLongPress: !widget.isPremium
+                    ? () {
+                        provider.startListening();
+                      }
+                    : () {},
+                onLongPressUp: !widget.isPremium
+                    ? () {
+                        provider.stopListening();
+                      }
+                    : () {},
                 logoAsset: 'assets/brand_logos/logo_png.png',
               );
             },

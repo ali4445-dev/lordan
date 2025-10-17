@@ -47,7 +47,7 @@ class VoiceChatProvider with ChangeNotifier {
   bool get hasError => _errorMessage != null;
 
   String? get errorMessage => _errorMessage;
-
+  DateTime? _startTime;
   VoiceChatProvider() {
     _initTts();
   }
@@ -110,7 +110,7 @@ class VoiceChatProvider with ChangeNotifier {
     return _isInitialized;
   }
 
-  Future<void> startListening() async {
+  Future<void> startListening({bool isPremium = true}) async {
     if (_state == VoiceState.listening) return;
 
     // Clear any previous errors
@@ -128,6 +128,10 @@ class VoiceChatProvider with ChangeNotifier {
       return;
     }
 
+    ///
+    _startTime = DateTime.now();
+
+    ///
     // Start listening
     _state = VoiceState.listening;
     _transcript = '';
@@ -136,8 +140,8 @@ class VoiceChatProvider with ChangeNotifier {
     try {
       await _speech.listen(
         onResult: (result) {
-          _transcript = result.recognizedWords;
           notifyListeners();
+          _transcript = result.recognizedWords;
         },
         cancelOnError: true,
         partialResults: true,
@@ -152,7 +156,20 @@ class VoiceChatProvider with ChangeNotifier {
   Future<void> stopListening() async {
     if (_state != VoiceState.listening) return;
 
+    if (_startTime!.second > 0) {
+      // Step 3: Get end time
+      DateTime endTime = DateTime.now();
+      print("End time: $endTime");
+
+      // Step 4: Calculate used time (in seconds)
+      Duration usedTime = endTime.difference(_startTime!);
+      int secondsUsed = usedTime.inSeconds;
+
+      print("Time used: $secondsUsed seconds");
+    }
+
     await _speech.stop();
+
     clearError();
     _processTranscript();
   }
@@ -176,10 +193,12 @@ class VoiceChatProvider with ChangeNotifier {
     // Process "AI" response (placeholder)
     _state = VoiceState.processing;
     notifyListeners();
+
+    print(_transcript);
     ChatStorageService.addMessage(
-        chatMode: GlobalData.mode!,
+        chatMode: GlobalData.mode ?? " ",
         message: Message(
-            chatMode: GlobalData.mode!,
+            chatMode: GlobalData.mode ?? " ",
             id: const Uuid().v4(),
             role: 'user',
             content: _transcript,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/home_screen.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -106,12 +108,13 @@ class WelcomeScreen extends StatelessWidget {
                       label: "Start Chat",
                       enabled: true,
                       onPressed: () async {
-                        final sessionBox = await Hive.openBox('session');
+                        final sessionBox = await UserStorageService.getUserBox;
 
-                        final user =
-                            await Supabase.instance.client.auth.currentUser;
+                        // final user =
+                        //     Supabase.instance.client.auth.currentUser!.email;
+                        // print(user);
 
-                        if (user != null) {
+                        if (sessionBox.isNotEmpty) {
                           context.push(HomeScreen.routeName);
                         } else {
                           context.push(LanguageSelectionScreen.routeName);
