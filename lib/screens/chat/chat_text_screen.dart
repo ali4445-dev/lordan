@@ -5,6 +5,7 @@ import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/chat/chat_voice_screen.dart';
+import 'package:lordan_v1/screens/start/components/language_dropdown.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:lordan_v1/utils/components/primary_back_button.dart';
 import 'package:provider/provider.dart';
@@ -42,6 +43,22 @@ class _ChatTextScreenState extends State<ChatTextScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+
+  final Map<String, String> languageMap = {
+    'en-US': 'English',
+    'es-ES': 'Spanish',
+    'pt-BR': 'Portuguese',
+    'ko-KR': 'Korean',
+    'tr-TR': 'Turkish',
+    'de-DE': 'German',
+    'fr-FR': 'French',
+    'ja-JP': 'Japanese',
+    'ar-SA': 'Arabic',
+    'zh-KR': 'Chinese',
+    'nl-NL': 'Dutch',
+  };
+
+  String? selectedLanguageCode = 'en-US';
 
   @override
   void initState() {
@@ -172,7 +189,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
       child: Row(
         children: [
           const PrimaryBackButton(),
-          const SizedBox(width: 10),
+          const SizedBox(width: 4),
           AnimatedBuilder(
             animation: _animationController,
             builder: (context, _) {
@@ -188,8 +205,9 @@ class _ChatTextScreenState extends State<ChatTextScreen>
               );
             },
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 4),
           Expanded(
+            flex: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -216,6 +234,62 @@ class _ChatTextScreenState extends State<ChatTextScreen>
               ],
             ),
           ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            width: MediaQuery.of(context).size.width * 0.3,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: const Color(0xFF1976D2)
+                    .withOpacity(0.6), // brighter blue border
+                width: 1.3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedLanguageCode,
+                isExpanded: true,
+                dropdownColor: const Color(0xFF1565C0)
+                    .withOpacity(0.95), // dropdown background
+                icon:
+                    const Icon(Icons.arrow_drop_down, color: Color(0xFF1976D2)),
+                borderRadius: BorderRadius.circular(14),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0D47A1),
+                ),
+                items: languageMap.entries.map((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Text(
+                      entry.value,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => selectedLanguageCode = value);
+                  }
+                },
+              ),
+            ),
+          ),
+
+          // SimpleDropdown(items: _a, onChanged:(call){}),
           // Consumer<ChatProvider>(
           //   builder: (context, chatProvider, _) {
           //     if (!widget.isPremium || !chatProvider.hasContext) {
@@ -322,9 +396,10 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                     await context
                                         .read<ChatProvider>()
                                         .sendMessage(message,
-                                            mode: roleName!,
+                                            mode: "text",
                                             isPremium: isPremium!,
-                                            language: GlobalData.language!);
+                                            language: selectedLanguageCode!,
+                                            role: roleName);
 
                                     _scrollToBottom();
                                   },

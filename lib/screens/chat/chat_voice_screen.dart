@@ -27,16 +27,34 @@ class ChatVoiceScreen extends StatefulWidget {
     this.roleDescription,
     this.isPremium = false,
   });
+  
 
   @override
   State<ChatVoiceScreen> createState() => _ChatVoiceScreenState();
 }
 
 class _ChatVoiceScreenState extends State<ChatVoiceScreen>
+
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+
+   final Map<String, String> languageMap = {
+    'en-US': 'English',
+    'es-ES': 'Spanish',
+    'pt-BR': 'Portuguese',
+    'ko-KR': 'Korean',
+    'tr-TR': 'Turkish',
+    'de-DE': 'German',
+    'fr-FR': 'French',
+    'ja-JP': 'Japanese',
+    'ar-SA': 'Arabic',
+    'zh-KR': 'Chinese',
+    'nl-NL': 'Dutch',
+  };
+
+  String? selectedLanguageCode = 'en-US';
 
   @override
   void initState() {
@@ -67,10 +85,14 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
     _animationController.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     bool isDark = userProvider.themeMode == ThemeMode.dark;
+
+    
 
     return ChangeNotifierProvider(
       create: (_) => VoiceChatProvider(),
@@ -167,21 +189,76 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                     color: Colors.white,
                   ),
                 ),
-                if ((widget.roleDescription ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.roleDescription ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                // if ((widget.roleDescription ?? '').isNotEmpty) ...[
+                //   const SizedBox(height: 4),
+                //   Text(
+                //     widget.roleDescription ?? '',
+                //     style: TextStyle(
+                //       fontSize: 14,
+                //       color: Colors.white.withValues(alpha: 0.7),
+                //     ),
+                //     maxLines: 1,
+                //     overflow: TextOverflow.ellipsis,
+                //   ),
+                // ],
               ],
             ),
           ),
+           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            width: MediaQuery.of(context).size.width * 0.3,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: const Color(0xFF1976D2)
+                    .withOpacity(0.6), // brighter blue border
+                width: 1.3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedLanguageCode,
+                isExpanded: true,
+                dropdownColor: const Color(0xFF1565C0)
+                    .withOpacity(0.95), // dropdown background
+                icon:
+                    const Icon(Icons.arrow_drop_down, color: Color(0xFF1976D2)),
+                borderRadius: BorderRadius.circular(14),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0D47A1),
+                ),
+                items: languageMap.entries.map((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Text(
+                      entry.value,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => selectedLanguageCode = value);
+                  }
+                },
+              ),
+            ),
+          ),
+
         ],
       ),
     );
@@ -233,7 +310,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                 onTap: widget.isPremium
                     ? () {
                         if (provider.isRecording) {
-                          provider.stopListening();
+                          provider.stopListening(isPremium: widget.isPremium,mode:"tts",role: widget.roleName!,language: selectedLanguageCode!);
                         } else {
                           provider.startListening();
                         }
@@ -246,7 +323,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                     : () {},
                 onLongPressUp: !widget.isPremium
                     ? () {
-                        provider.stopListening();
+                        provider.stopListening(isPremium: widget.isPremium,mode:"tts",role: widget.roleName!);
                       }
                     : () {},
                 logoAsset: 'assets/brand_logos/logo_png.png',

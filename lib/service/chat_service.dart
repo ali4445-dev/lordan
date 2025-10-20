@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:lordan_v1/global.dart';
@@ -7,6 +8,7 @@ import 'package:lordan_v1/global.dart';
 /// Supports both 'text' and 'tts' modes.
 Future<Map<String, dynamic>> sendToLordan(
   String message, {
+  String role = 'study',
   String plan = 'free',
   String mode = 'text',
   String locale = 'en-US',
@@ -16,7 +18,7 @@ Future<Map<String, dynamic>> sendToLordan(
   const functionUrl =
       'https://aaemoamrwoyzgcelwmpu.supabase.co/functions/v1/rapid-function'; // ✅ your deployed Edge Function URL
   final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-
+  debugPrint("Request Reached");
   final response = await http.post(
     Uri.parse(functionUrl),
     headers: {
@@ -25,9 +27,10 @@ Future<Map<String, dynamic>> sendToLordan(
     },
     body: jsonEncode({
       'message': message,
-      'plan': GlobalData.plan,
-      'mode': GlobalData.mode,
-      'locale': GlobalData.language,
+      'plan': plan,
+      'mode': mode,
+      'locale':locale,
+      'role':role,
     }),
   );
 

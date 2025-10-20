@@ -1,3 +1,4 @@
+import 'package:lordan_v1/global.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProfile {
@@ -111,9 +112,9 @@ class SupabaseService {
   Future<UserProfile> fetchUserProfile() async {
     if (_client.auth.currentUser == null) throw Exception('Not authenticated');
 
-    final response = await _client.from('profiles').select().eq('id', _client.auth.currentUser!.id).single();
+    // final response = await _client.from('profiles').select().eq('id', _client.auth.currentUser!.id).single();
 
-    return UserProfile.fromJson(response);
+    return UserProfile(fullName: GlobalData.email ?? "Guest User", plan: GlobalData.plan);
   }
 
   // Fetch roles based on filter and search query

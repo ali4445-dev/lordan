@@ -56,6 +56,7 @@ class VoiceChatProvider with ChangeNotifier {
     await _tts.setLanguage('en-US');
     await _tts.setSpeechRate(0.4);
     await _tts.setPitch(1.0);
+    
 
     _tts.setCompletionHandler(() {
       if (_isContinuousMode && _state == VoiceState.speaking) {
@@ -110,7 +111,7 @@ class VoiceChatProvider with ChangeNotifier {
     return _isInitialized;
   }
 
-  Future<void> startListening({bool isPremium = true}) async {
+  Future<void> startListening({bool isPremium = false}) async {
     if (_state == VoiceState.listening) return;
 
     // Clear any previous errors
@@ -153,7 +154,12 @@ class VoiceChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> stopListening() async {
+  Future<void> stopListening(
+
+      {String mode = 'text',
+      bool isPremium = false,
+      String language = 'en-US',
+      String role="study"}) async {
     if (_state != VoiceState.listening) return;
 
     if (_startTime!.second > 0) {
@@ -171,10 +177,16 @@ class VoiceChatProvider with ChangeNotifier {
     await _speech.stop();
 
     clearError();
-    _processTranscript();
+    _processTranscript( mode :mode,
+      isPremium :isPremium,
+     language : language,
+      role:role);
   }
 
-  void _processTranscript() async {
+  void _processTranscript({String mode = 'text',
+      bool isPremium = false,
+      String language = 'en-US',
+      String role="study"}) async {
     if (_transcript.isEmpty) {
       _state = VoiceState.idle;
       clearError();
@@ -203,18 +215,32 @@ class VoiceChatProvider with ChangeNotifier {
             role: 'user',
             content: _transcript,
             createdAt: DateTime.now()));
+    
+   
+     await dynamicVoice();
+    
+    
+      
 
     // TODO: Replace this with actual API call
-    final aiResponse = await sendToLordan(_transcript);
+    final aiResponse = await sendToLordan(_transcript, mode :mode,
+      plan:isPremium ?"premium" : "free",
+     locale : language,
+      role:role);
+
+      
 
     _messages.add(Message(
       id: DateTime.now().toString(),
       role: 'assistant',
-      content: aiResponse['reply'],
+      content: aiResponse['reply'] ?? "Please Wait",
       createdAt: DateTime.now(),
     ));
 
+  print(aiResponse["reply"]);
+  print(aiResponse["audio_64"]);
     // Speak the response
+    
     await speak(aiResponse['reply']);
     ChatStorageService.addMessage(
         chatMode: GlobalData.mode!,
@@ -232,6 +258,7 @@ class VoiceChatProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      
       await _tts.speak(text);
     } catch (e) {
       _handleError('Text-to-speech error: $e');
@@ -268,4 +295,55 @@ class VoiceChatProvider with ChangeNotifier {
     _tts.stop();
     super.dispose();
   }
+
+Future<void> dynamicVoice()async{
+ 
+      final voices = await _tts.getVoices;
+
+  if (voices == null || voices.isEmpty) {
+    print("⚠️ No voices found!");
+    return;
+  }
+
+  // Check for male or female command
+  if (transcript.contains("switch to male") || transcript.contains("switch to mail")) {
+    final maleVoice = voices.firstWhere(
+      (voice) =>
+          
+           voice['gender']?.toString().toLowerCase() != 'female' ||
+          !voice['name'].toString().toLowerCase().contains('female'),
+      orElse: () => voices.first,
+    );
+
+    print("✅ Switching to male voice: $maleVoice");
+
+    await _tts.setVoice({
+      'name': maleVoice['name'],
+      'locale': maleVoice['locale'],
+    });
+  } else if (transcript.contains("switch to female") ||
+             transcript.contains("switch to female voice")) {
+    final femaleVoice = voices.firstWhere(
+      (voice) =>
+          voice['name'].toString().toLowerCase().contains('female') ||
+          voice['gender']?.toString().toLowerCase() == 'female',
+      orElse: () => voices.first,
+    );
+
+    print("✅ Switching to female voice: $femaleVoice");
+
+    await _tts.setVoice({
+      'name': femaleVoice['name'],
+      'locale': femaleVoice['locale'],
+    });
+  } else {
+    print("ℹ️ No gender switch command detected.");
+  }
+  
 }
+
+
+
+ 
+}
+  

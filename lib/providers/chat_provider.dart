@@ -28,9 +28,11 @@ class ChatProvider with ChangeNotifier {
 
   // Simulated streaming response - replace with actual API call
   Future<void> sendMessage(String content,
+
       {String mode = 'text',
       bool isPremium = false,
-      String language = 'en'}) async {
+      String language = 'en',
+      String role="study"}) async {
     if (content.trim().isEmpty) return;
 
     try {
@@ -51,7 +53,7 @@ class ChatProvider with ChangeNotifier {
       // ✅ Prepare to receive assistant response
       final responseId = _uuid.v4();
 
-      final Map<String, dynamic> jsonData = await sendToLordan(content);
+      final Map<String, dynamic> jsonData = await sendToLordan(content,locale: language,plan: !isPremium?'free':'premium',role: role);
 
       if (mode == 'tts') {
         // Get the Base64 audio string

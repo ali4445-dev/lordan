@@ -135,6 +135,7 @@ import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart
 import 'package:lordan_v1/screens/home_screen_pages/settings/components/setting_tile.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/privacy_policy_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/terms_of_service_screen.dart';
+import 'package:lordan_v1/screens/start/language_selection_screen.dart';
 import 'package:lordan_v1/screens/start/welcome_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -195,6 +196,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ?.copyWith(color: Colors.white),
                       trailing: const Icon(Icons.arrow_forward_ios,
                           color: Colors.white),
+                          onTap: (){
+                            context.push(LanguageSelectionScreen.routeName);
+                          },
                     ),
                     Divider(
                       color: Colors.white.withValues(alpha: 0.25),

@@ -121,9 +121,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     try {
       final results = await Future.wait([
-        // _supabaseService.fetchUserProfile(),
-        // _supabaseService.fetchFeaturedRoles(),
-        // _supabaseService.fetchRoles(),
+        _supabaseService.fetchUserProfile(),
+        _supabaseService.fetchFeaturedRoles(),
+        _supabaseService.fetchRoles(),
       ]);
 
       final userRoles = await UserStorageService.getSavedRoles();
@@ -539,7 +539,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       return;
     } else {
       context.push(ChatTextScreen.routeName, extra: {
-        'roleId': role.id,
+        'roleId': role.id ,
         'roleName': role.name,
         'roleDescription': role.description,
         'isPremium': role.isPremium,

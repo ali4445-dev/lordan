@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lordan_v1/methods/google_signing.dart';
 import 'package:lordan_v1/screens/start/components/header_section.dart';
 import 'package:lordan_v1/screens/start/auth/components/my_phone_input.dart';
+import 'package:lordan_v1/screens/start/components/terms_and_conditions.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:provider/provider.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
@@ -103,7 +104,8 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                  _BottomActions()
+                  // _BottomActions()
+                const  AgreeWithTerms()
                 ],
               ),
             ),
@@ -172,10 +174,9 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                   label: "Phone",
                   // isActive: loginMethod == LoginMethod.phone,
                   isActive: false,
+                
 
-                  onTap: () => setState(() {
-                    loginMethod = LoginMethod.phone;
-                  }),
+                  onTap: () =>const Tooltip(message: "Availabe in Future"),
                 ),
               ],
             ),
@@ -211,26 +212,26 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                 );
               },
             ),
-          ] else ...[
-            // Phone Input
-            MyPhoneInput(controller: widget.phoneController),
-            const SizedBox(height: 16),
+          // ] else ...[
+          //   // Phone Input
+          //   MyPhoneInput(controller: widget.phoneController),
+          //   const SizedBox(height: 16),
 
-            RememberMeCheckbox(
-              value: _rememberMe,
-              onChanged: (v) => setState(() => _rememberMe = v ?? false),
-            ),
+          //   RememberMeCheckbox(
+          //     value: _rememberMe,
+          //     onChanged: (v) => setState(() => _rememberMe = v ?? false),
+          //   ),
             const SizedBox(height: 24),
 
             // Phone Sign-in Button
-            PrimaryButton(
-              horizontalMargin: 0,
-              label: "Continue with Phone",
-              enabled: true,
-              onPressed: () async {
-                // TODO: phone login flow
-              },
-            ),
+            // PrimaryButton(
+            //   horizontalMargin: 0,
+            //   label: "Continue with Phone",
+            //   enabled: true,
+            //   onPressed: () async {
+            //     // TODO: phone login flow
+            //   },
+            // ),
           ],
 
           const SizedBox(height: 24),
@@ -318,6 +319,7 @@ class _SocialSignInButtons extends StatelessWidget {
           label: 'Continue with Google',
           color: Colors.white.withValues(alpha: 0.7),
           textColor: Colors.black,
+
           onPressed: () async {
             try {
               AuthResponse response;
@@ -358,14 +360,14 @@ class _SocialSignInButtons extends StatelessWidget {
           },
         ),
         const SizedBox(height: 12),
-        _SocialButton(
-          icon: 'assets/icons/apple.svg',
-          label: 'Continue with Apple',
-          color: Colors.black,
-          textColor: Colors.white,
-          // onPressed: () => authProvider.mockSignInApple(),
-          onPressed: () {},
-        ),
+        // _SocialButton(
+        //   icon: 'assets/icons/apple.svg',
+        //   label: 'Continue with Apple',
+        //   color: Colors.black,
+        //   textColor: Colors.white,
+        //   // onPressed: () => authProvider.mockSignInApple(),
+        //   onPressed: () {},
+        // ),
       ],
     );
   }
@@ -394,6 +396,7 @@ class _SocialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
+      
       onPressed: onPressed,
       icon: SvgPicture.asset(
         icon,

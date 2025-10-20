@@ -91,6 +91,7 @@ class LordanApp extends StatelessWidget {
     return Consumer<UserProvider>(builder: (context, themeProvider, child) {
       return MaterialApp.router(
         title: 'Lordan',
+        debugShowCheckedModeBanner: false,
         // themeMode: themeProvider.themeMode,
         theme: lightTheme,
         // darkTheme: darkTheme,

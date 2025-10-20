@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/home_screen.dart';
+import 'package:lordan_v1/screens/start/auth/login_screen.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -117,7 +118,7 @@ class WelcomeScreen extends StatelessWidget {
                         if (sessionBox.isNotEmpty) {
                           context.push(HomeScreen.routeName);
                         } else {
-                          context.push(LanguageSelectionScreen.routeName);
+                          context.push(LoginScreen.routeName);
                         }
                       },
                     ),

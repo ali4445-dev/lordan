@@ -8,7 +8,7 @@ class PrimaryBackButton extends StatelessWidget {
     return Row(
       children: [
         const SizedBox(
-          width: 10.0,
+          width: 4,
         ),
         GestureDetector(
           onTap: () => Navigator.of(context).maybePop(),
@@ -23,7 +23,7 @@ class PrimaryBackButton extends StatelessWidget {
             child: const Icon(
               Icons.arrow_back_ios_new,
               color: Colors.white,
-              size: 18,
+              size: 15,
             ),
           ),
         ),

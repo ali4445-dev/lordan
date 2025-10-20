@@ -29,6 +29,7 @@ import '../screens/paywall/paywall_screen.dart';
 
 // Export a single GoRouter instance configured with guards and routes
 final GoRouter router = GoRouter(
+
   initialLocation: RoutePaths.welcome,
   redirect: (BuildContext context, GoRouterState state) {
     final auth = context.read<AuthProvider?>();
@@ -83,6 +84,7 @@ final GoRouter router = GoRouter(
   },
   routes: <RouteBase>[
     GoRoute(
+      
       path: RoutePaths.welcome,
       name: 'welcome',
       builder: (context, state) => const WelcomeScreen(),
