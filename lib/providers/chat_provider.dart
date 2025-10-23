@@ -57,13 +57,9 @@ class ChatProvider with ChangeNotifier {
       if (GlobalData.messageCount == 3) {
         final Map<String, dynamic> jsonData = await sendToLordan('');
         ChatStorageService.addMessage(
-            chatMode: jsonData["mode"].trim()!,
-            message: Message(
-              id: responseId,
-              role: 'assistant',
-              content: jsonData["summary"].trim(),
-              createdAt: DateTime.now(),
-            ));
+          chatMode: role,
+          message: jsonData["summary"].trim(),
+        );
         print("Summary Add to database");
         GlobalData.messageCount = 0;
       }

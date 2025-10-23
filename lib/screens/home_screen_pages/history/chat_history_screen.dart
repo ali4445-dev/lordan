@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/models/summaries.dart';
 import 'package:lordan_v1/providers/user_provider.dart';
 import 'package:lordan_v1/screens/start/components/app_bar.dart';
-import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/theme.dart';
-import 'package:lordan_v1/utils/components/glass_card.dart';
 import 'package:lordan_v1/utils/components/gradient_backdrop.dart';
-import 'package:lordan_v1/utils/components/primary_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:lordan_v1/models/message.dart';
+
+// ✅ Your Summary model
+// ✅ The SummaryUtils with getSummaries()
+
+// ✅ GlobalData.plan assumed here
 
 class ChatHistoryScreen extends StatefulWidget {
   static const String routeName = '/chat-history';
@@ -21,32 +25,22 @@ class ChatHistoryScreen extends StatefulWidget {
 }
 
 class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
-  late String email;
-  late List<Message> _chatHistory = [];
+  late List<Summary> _summaries = [];
 
   @override
   void initState() {
     super.initState();
-
-    _loadHistory();
+    _loadSummaries();
   }
 
-  Future<void> _loadHistory() async {
+  Future<void> _loadSummaries() async {
     try {
-      // Convert stored JSON data back into Message objects
-      final allMessages = await ChatStorageService.getMessages();
-      // userData.forEach((mode, list) {
-      //   if (list is List) {
-      //     history[mode] = list.map((e) => Message.fromJson(Map<String, dynamic>.from(e))).toList();
-      //   }
-      // });
-
+      final allSummaries = await SummaryUtils.getSummaries();
       setState(() {
-        _chatHistory = allMessages;
-        print(_chatHistory.toList());
+        _summaries = allSummaries;
       });
     } catch (e) {
-      print('Error loading chat history: $e');
+      print('❌ Error loading summaries: $e');
     }
   }
 
@@ -56,7 +50,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     bool isDark = userProvider.themeMode == ThemeMode.dark;
     final theme = Theme.of(context);
 
-    if (_chatHistory.isEmpty) {
+    if (_summaries.isEmpty) {
       return Scaffold(
         body: Stack(
           fit: StackFit.expand,
@@ -65,13 +59,12 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
             SafeArea(
               child: Column(
                 children: [
-                  // _buildHeader(),
                   const SizedBox(height: 10),
                   buildTopBar(theme, isPremiumUser: userProvider.isPremium),
                   const Expanded(
                     child: Center(
                       child: Text(
-                        "No chat history found.",
+                        "No summaries found.",
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
@@ -98,9 +91,10 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(12),
-                    itemCount: 1,
+                    itemCount: _summaries.length,
                     itemBuilder: (context, index) {
-                      return _buildModeSection(_chatHistory);
+                      final summary = _summaries[index];
+                      return _buildSummaryTile(summary);
                     },
                   ),
                 ),
@@ -112,76 +106,19 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.glassLight.withValues(alpha: 0.1),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
-          ),
-        ),
-      ),
-      child: const Center(
-        child: Row(
-          children: [
-            SizedBox(width: 10),
-            Text(
-              "Chat History",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildModeSection(List<Message> messages) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.glassLight.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: ExpansionTile(
-        initiallyExpanded: true,
-        tilePadding: EdgeInsets.only(top: 10),
-        iconColor: Colors.white,
-        title: const Center(
-          child: Text(
-            "Chat History",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        children: messages.map((msg) => _buildMessageBubble(msg)).toList(),
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Message message) {
-    final formattedTime = DateFormat('hh:mm a').format(message.createdAt);
-    final isUser = message.role == 'user';
+  /// 🧩 Each summary card section
+  Widget _buildSummaryTile(Summary summary) {
+    final formattedTime = DateFormat('MMM dd, hh:mm a').format(summary.time);
 
     return Dismissible(
-      key: Key(message.id), // unique key for each message
-      direction: DismissDirection.endToStart, // swipe left to delete
+      key: Key(summary.time.toIso8601String()),
+      direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: Colors.red.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: const Icon(
           Icons.delete,
@@ -190,51 +127,41 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         ),
       ),
       onDismissed: (direction) async {
-        // ✅ Remove from storage
-        await ChatStorageService.deleteMessage(message);
-
-        // ✅ Optionally show feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Message deleted'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-
-        // ✅ Optionally update UI if using a provider/state
-        setState(() {
-          _chatHistory.removeWhere((m) => m.id == message.id);
-        });
+        await _deleteSummary(summary);
       },
-      child: Align(
-        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: isUser
-                ? Colors.blueAccent.withOpacity(0.2)
-                : Colors.greenAccent.withOpacity(0.2),
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(18),
-              topRight: const Radius.circular(18),
-              bottomLeft:
-                  isUser ? const Radius.circular(18) : const Radius.circular(0),
-              bottomRight:
-                  isUser ? const Radius.circular(0) : const Radius.circular(18),
-            ),
-            border: Border.all(
-              color: isUser ? Colors.blueAccent : Colors.greenAccent,
-              width: 0.8,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.glassLight.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        child: ExpansionTile(
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.only(top: 10),
+          iconColor: Colors.white,
+          title: Text(
+            summary.role.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          child: Column(
-            crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              Text(
-                message.content,
+          leading: Text(
+            formattedTime,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 12,
+            ),
+          ),
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Text(
+                summary.content,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
@@ -242,32 +169,55 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                 ),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 4),
-              Container(
-                width: 150,
-                child: Row(
-                  children: [
-                    Text(
-                      formattedTime,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Text(
-                      message.chatMode,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+            ),
+            if (GlobalData.plan == "premium")
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    await _deleteSummary(summary);
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                  label: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _deleteSummary(Summary summary) async {
+    final email = Supabase.instance.client.auth.currentUser?.email;
+    if (email == null) return;
+
+    final box = UserStorageService.getUserBox;
+    final userData =
+        Map<String, dynamic>.from(box.get(email, defaultValue: {}));
+
+    final List summaries =
+        (userData['summaries'] as List?)?.whereType<Map>().toList() ?? [];
+
+    // remove matching summary
+    summaries.removeWhere((item) =>
+        item['content'] == summary.content &&
+        item['time'] == summary.time.toIso8601String());
+
+    userData['summaries'] = summaries;
+    await box.put(email, userData);
+
+    setState(() {
+      _summaries.remove(summary);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Summary deleted'),
+        duration: Duration(seconds: 2),
       ),
     );
   }

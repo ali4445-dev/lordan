@@ -17,28 +17,45 @@ class ChatStorageService {
   /// ✅ Add a message for a specific user and chat mode
   static Future<void> addMessage({
     required String chatMode,
-    required Message message,
+    required String message,
   }) async {
+    final box = UserStorageService.getUserBox;
+    final summary = {
+      "role": chatMode,
+      "time": DateTime.now().toIso8601String(),
+      "content": message,
+    };
     String? email = await Supabase.instance.client.auth.currentUser!.email;
-
+    print(message);
+    print(chatMode);
     final userData =
-        Map<String, dynamic>.from(chatBox.get(email, defaultValue: {}));
+        Map<String, dynamic>.from(box.get(email, defaultValue: {}));
 
     // final messages = (userData[chatMode] as List<Map<String, dynamic>>?) ?? [];
-    final rawList = userData[chatMode];
-    final List<Map<String, dynamic>> messages = rawList is List
-        ? rawList
-            .whereType<Map>() // filter only maps
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList()
-        : [];
+    // final rawList = userData[chatMode];
+    // final List<Map<String, dynamic>> messages = rawList is List
+    //     ? rawList
+    //         .whereType<Map>() // filter only maps
+    //         .map((e) => Map<String, dynamic>.from(e))
+    //         .toList()
+    //     : [];
 
-    messages.add(message.toJson());
-    userData[chatMode] = messages;
+    // messages.add(message.toJson());
+    // userData[chatMode] = messages;
 
-    await chatBox.put(email, userData);
+    // await chatBox.put(email, userData);
 
-    print(chatBox.toMap());
+    // print(chatBox.toMap());
+
+    final updatedSummaries =
+        List<Map<String, dynamic>>.from(userData['summaries'] ?? []);
+    print(updatedSummaries);
+    updatedSummaries.add(summary);
+    print("\n${updatedSummaries}");
+
+    userData['summaries'] = updatedSummaries;
+
+    await box.put(email, userData);
   }
 
   /// ✅ Get all messages for a specific user & chat mode

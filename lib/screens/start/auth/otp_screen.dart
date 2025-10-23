@@ -119,7 +119,7 @@ class _OtpScreenState extends State<OtpScreen> {
                               .read<AuthProvider>()
                               .verifyEmailOtp(pin);
                           if (success) {
-                            await UserStorageService.saveUserData();
+                            await UserStorageService.createUserRecord();
                             UserStorageService.printAll();
                             context.go(HomeScreen.routeName);
                           }

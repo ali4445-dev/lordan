@@ -129,6 +129,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/about_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart';
@@ -177,12 +178,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 buildTopBar(theme,
                     isPremiumUser: userProvider.isPremium,
                     isDefaultPadding: true),
-                const Column(
+                Column(
                   children: [
-                    Icon(Icons.account_circle, size: 100, color: Colors.white),
+                    const Icon(Icons.account_circle,
+                        size: 100, color: Colors.white),
                     Text(
-                      'John Doe',
-                      style: TextStyle(
+                      GlobalData.user.email,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold),

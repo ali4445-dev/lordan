@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   // _BottomActions()
-                const  AgreeWithTerms()
+                  const AgreeWithTerms()
                 ],
               ),
             ),
@@ -174,9 +174,8 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                   label: "Phone",
                   // isActive: loginMethod == LoginMethod.phone,
                   isActive: false,
-                
 
-                  onTap: () =>const Tooltip(message: "Availabe in Future"),
+                  onTap: () => const Tooltip(message: "Availabe in Future"),
                 ),
               ],
             ),
@@ -212,15 +211,15 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                 );
               },
             ),
-          // ] else ...[
-          //   // Phone Input
-          //   MyPhoneInput(controller: widget.phoneController),
-          //   const SizedBox(height: 16),
+            // ] else ...[
+            //   // Phone Input
+            //   MyPhoneInput(controller: widget.phoneController),
+            //   const SizedBox(height: 16),
 
-          //   RememberMeCheckbox(
-          //     value: _rememberMe,
-          //     onChanged: (v) => setState(() => _rememberMe = v ?? false),
-          //   ),
+            //   RememberMeCheckbox(
+            //     value: _rememberMe,
+            //     onChanged: (v) => setState(() => _rememberMe = v ?? false),
+            //   ),
             const SizedBox(height: 24),
 
             // Phone Sign-in Button
@@ -319,7 +318,6 @@ class _SocialSignInButtons extends StatelessWidget {
           label: 'Continue with Google',
           color: Colors.white.withValues(alpha: 0.7),
           textColor: Colors.black,
-
           onPressed: () async {
             try {
               AuthResponse response;
@@ -343,7 +341,7 @@ class _SocialSignInButtons extends StatelessWidget {
               }
 
               if (successLogin) {
-                UserStorageService.saveUserData();
+                UserStorageService.createUserRecord();
                 // ✅ Save session or navigate now
                 // context.read<AuthProvider>().saveUserSession();
 
@@ -396,7 +394,6 @@ class _SocialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      
       onPressed: onPressed,
       icon: SvgPicture.asset(
         icon,

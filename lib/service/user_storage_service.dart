@@ -1,68 +1,118 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/message.dart';
+import 'package:lordan_v1/models/user_model.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../providers/user_provider.dart';
 
-class UserStorageService {
+class UserStorageService extends ChangeNotifier {
   static final Box _userBox = Hive.box('userBox');
   static Box get getUserBox => _userBox;
 
   /// Save all user settings for a given email
-  static Future<void> saveUserData() async {
-    await Future.delayed(Duration(milliseconds: 1000));
-    final user = await Supabase.instance.client.auth.currentUser;
-    late final userEmail;
-    if (user != null) {
-      userEmail = await user.email;
-    }
-    final roleNames = GlobalData.selectedRoles.map((r) => r.name).toList();
-    print(GlobalData.language);
-    print(roleNames);
-    print(GlobalData.plan);
-    final userData = {
-      'locale': GlobalData.language,
-      'roles': roleNames,
-      // 'theme': user.themeMode.toString(),
-      'plan': GlobalData.plan,
-    };
+  static final supabase = Supabase.instance.client;
 
+  static Future<void> createUserRecord() async {
+    final currentUser = supabase.auth.currentUser;
     final chatBox = ChatStorageService.chatBox;
-    // ✅ Create initial chat data structure
-    final Map<String, dynamic> chatData = {
-      for (final role in roleNames) role: <Map<String, dynamic>>[],
-    };
-    await _userBox.put(userEmail, userData);
+    String? email;
+    if (currentUser != null) {
+      email = currentUser.email;
+    } else {
+      print("SessionCannot be saved");
+      return;
+    }
 
-    print("USer Box Created");
+    ;
+    try {
+      final now = DateTime.now();
+      final expiryDate = now.add(const Duration(days: 7));
 
-    // ✅ Save this user's chat record
-    await chatBox.put(userEmail, chatData);
+      // ✅ Generate a unique user ID
+      final userId = const Uuid().v4();
 
-    debugPrint(
-        '📦 Created user + initialized chatBox for $userEmail as ${_userBox.toMap()} and  ${chatBox.toMap()}');
+      // ✅ Create user data map
+      final userData = {
+        "user_id": userId,
+        "email": email,
+        "plan": "standard",
+        "under_trial": true,
+        "trial_expiary": expiryDate.toIso8601String(),
+        "created_at": now.toIso8601String(),
+        "updated_at": now.toIso8601String(),
+        "summaries": [], // ✅ Initially empty list
+      };
+
+      // ✅ Save locally in Hive
+      await getUserBox.put(email, userData);
+      print("✅ User saved locally in Hive.");
+
+      final user = AppUser(
+          userKey: userId,
+          status: "standard",
+          createdAt: now,
+          updatedAt: now,
+          platform: Platform.isAndroid ? "android" : "ios");
+
+      // ✅ Save remotely in Supabase
+      final response = await supabase.from('users').insert({
+        user.toJson()
+        // empty initially
+      }).select();
+
+      if (response.isNotEmpty) {
+        print("✅ User saved remotely in Supabase. ${response}");
+      } else {
+        print("⚠️ Supabase insert returned empty response.");
+      }
+    } catch (e) {
+      print("❌ Error creating user: $e");
+    }
+
+    chatBox.put(email, {});
   }
 
   /// Load user settings (if exist)
   static Future<void> loadUserData() async {
     final user = await Supabase.instance.client.auth.currentUser;
+
     late final userEmail;
     if (user != null) {
       userEmail = await user.email;
     }
 
     final data = _userBox.get(userEmail);
+
     if (data == null) return;
+    final response = await supabase
+        .from('users')
+        .select()
+        .eq('email', userEmail)
+        .maybeSingle();
+
+    if (response == null) {
+      print("❌ No user found for $userEmail");
+      return null;
+    }
+
+    final appUser = AppUser.fromJson({
+      'userKey': response['userKey'],
+      'status': response['status'],
+      'created_at': response['created_at'],
+      'expires_at': response['expires_at'],
+      'updated_at': response['updated_at'],
+      'platform': response['platform'] ?? 'unknown',
+    });
+
+    GlobalData.setUser(appUser);
 
     // Restore locale
-    final langCode = data['locale'];
-    if (langCode != null) {
-      GlobalData.language = langCode;
-    }
 
     // Restore roles
     // if (data['roles'] != null) {
@@ -123,5 +173,21 @@ class UserStorageService {
     // Save back into Hive
     await userBox.put('roles', newRoles);
     print(userBox.toMap());
+  }
+
+  static void saveUserStatus() async {
+    final now = DateTime.now();
+    final expiryDate = now.add(const Duration(days: 30));
+    final email = supabase.auth.currentUser!.email;
+
+    await _userBox.put("status", "premium");
+    await _userBox.put("updated_at", now.toIso8601String());
+    await _userBox.put("expiare_at", expiryDate.toIso8601String());
+
+    await Supabase.instance.client.from('users').update({
+      'status': 'premium',
+      'expires_at': expiryDate.toIso8601String(),
+      'updated_at': now.toIso8601String(),
+    }).eq('email', email!);
   }
 }
