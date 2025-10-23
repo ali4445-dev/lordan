@@ -28,11 +28,10 @@ class ChatProvider with ChangeNotifier {
 
   // Simulated streaming response - replace with actual API call
   Future<void> sendMessage(String content,
-
       {String mode = 'text',
       bool isPremium = false,
       String language = 'en',
-      String role="study"}) async {
+      String role = "study"}) async {
     if (content.trim().isEmpty) return;
 
     try {
@@ -53,8 +52,21 @@ class ChatProvider with ChangeNotifier {
       // ✅ Prepare to receive assistant response
       final responseId = _uuid.v4();
 
-      final Map<String, dynamic> jsonData = await sendToLordan(content,locale: language,plan: !isPremium?'free':'premium',role: role);
-
+      final Map<String, dynamic> jsonData = await sendToLordan(content,
+          locale: language, plan: !isPremium ? 'free' : 'premium', role: role);
+      if (GlobalData.messageCount == 3) {
+        final Map<String, dynamic> jsonData = await sendToLordan('');
+        ChatStorageService.addMessage(
+            chatMode: jsonData["mode"].trim()!,
+            message: Message(
+              id: responseId,
+              role: 'assistant',
+              content: jsonData["summary"].trim(),
+              createdAt: DateTime.now(),
+            ));
+        print("Summary Add to database");
+        GlobalData.messageCount = 0;
+      }
       if (mode == 'tts') {
         // Get the Base64 audio string
         final audioB64 = jsonData['audio_b64'];
@@ -94,16 +106,6 @@ class ChatProvider with ChangeNotifier {
           content: responseText.trim(),
           createdAt: DateTime.now(),
         ));
-
-        ChatStorageService.addMessage(
-            chatMode: GlobalData.mode!,
-            message: Message(
-              id: responseId,
-              role: 'assistant',
-              content: responseText.trim(),
-              createdAt: DateTime.now(),
-            ));
-        print("Chat addet to database");
       }
     } catch (e) {
       _error = e.toString();

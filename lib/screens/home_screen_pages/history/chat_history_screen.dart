@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lordan_v1/providers/user_provider.dart';
+import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:lordan_v1/theme.dart';
 import 'package:lordan_v1/utils/components/glass_card.dart';
@@ -53,6 +54,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
     bool isDark = userProvider.themeMode == ThemeMode.dark;
+    final theme = Theme.of(context);
 
     if (_chatHistory.isEmpty) {
       return Scaffold(
@@ -63,7 +65,9 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
             SafeArea(
               child: Column(
                 children: [
-                  _buildHeader(),
+                  // _buildHeader(),
+                  const SizedBox(height: 10),
+                  buildTopBar(theme, isPremiumUser: userProvider.isPremium),
                   const Expanded(
                     child: Center(
                       child: Text(

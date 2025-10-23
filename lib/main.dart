@@ -9,6 +9,8 @@ import 'package:lordan_v1/models/chat_mode.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/models/user_chat_data.dart';
 import 'package:lordan_v1/providers/stats_provider.dart';
+import 'package:lordan_v1/providers/subscribtion_provider.dart';
+import 'package:lordan_v1/screens/paywall/supscription_screen.dart';
 import 'package:lordan_v1/service/supabase_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -69,6 +71,9 @@ Future<void> main() async {
           ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
           ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
           ChangeNotifierProvider<ChatProvider>(create: (_) => ChatProvider()),
+          ChangeNotifierProvider<SubscriptionService>(
+            create: (_) => SubscriptionService(),
+          ),
           ChangeNotifierProvider(
               create: (_) => StatsProvider(SupabaseService())),
         ],
@@ -100,3 +105,24 @@ class LordanApp extends StatelessWidget {
     });
   }
 }
+
+// import 'package:flutter/material.dart';
+// import 'package:lordan_v1/screens/paywall/supscription_screen.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Subscription Test',
+//       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
+//       home: const SubscriptionScreen(),
+//       debugShowCheckedModeBanner: false,
+//     );
+//   }
+// }

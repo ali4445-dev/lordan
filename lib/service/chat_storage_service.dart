@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
@@ -132,10 +137,5 @@ class ChatStorageService {
       userData[message.chatMode] = msgList;
       await chatBox.put(email, userData);
     }
-  }
-
-  /// ✅ Delete everything (all users, all chats)
-  static Future<void> clearAll() async {
-    await chatBox.clear();
   }
 }

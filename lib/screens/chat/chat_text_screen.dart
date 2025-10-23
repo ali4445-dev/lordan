@@ -43,6 +43,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+  var _searchQuery = '';
 
   final Map<String, String> languageMap = {
     'en-US': 'English',
@@ -57,12 +58,45 @@ class _ChatTextScreenState extends State<ChatTextScreen>
     'zh-KR': 'Chinese',
     'nl-NL': 'Dutch',
   };
+  final List<Locale> _allLocales = const [
+    Locale('en'),
+    Locale('es'),
+    Locale('pt'),
+    Locale('ko'),
+    Locale('tr'),
+    Locale('de'),
+    Locale('fr'),
+    Locale('ja'),
+    Locale('ar'),
+    Locale('zh'),
+    Locale('nl'),
+  ];
+
+  List<Locale> get _filteredLocales => _allLocales.where((locale) {
+        final userProvider = context.read<UserProvider>();
+        final label = userProvider.labelFor(locale).toLowerCase();
+        final code = locale.languageCode.toLowerCase();
+
+        final query = _searchQuery.toLowerCase();
+        return label.contains(query) || code.contains(query);
+      }).toList();
 
   String? selectedLanguageCode = 'en-US';
 
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final userProvider = Provider.of<UserProvider>(context, listen: false);
+    //   userProvider.setLocale(_filteredLocales.first);
+    //   for (var locale in _allLocales) {
+    //     final String svgPath =
+    //         'assets/country_flags/${locale.languageCode}.svg';
+    //     final loader = SvgAssetLoader(svgPath);
+    //     svg.cache
+    //         .putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+    //   }
+    // });
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -236,7 +270,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            width: MediaQuery.of(context).size.width * 0.3,
+            width: MediaQuery.of(context).size.width * 0.2,
             decoration: BoxDecoration(
               color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
               borderRadius: BorderRadius.circular(18),
@@ -267,17 +301,15 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF0D47A1),
                 ),
+
                 items: languageMap.entries.map((entry) {
+                  final path =
+                      'assets/country_flags/${entry.key.split('-')[0]}.svg';
+                  print(path);
                   return DropdownMenuItem<String>(
                     value: entry.key,
-                    child: Text(
-                      entry.value,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: SvgPicture.asset(path,
+                        width: MediaQuery.of(context).size.width * 0.1),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -382,15 +414,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                 : () async {
                                     final message = value.text;
                                     _textController.clear();
-                                    ChatStorageService.addMessage(
-                                        chatMode: roleName!,
-                                        message: Message(
-                                            chatMode: roleName,
-                                            id: const Uuid().v4(),
-                                            role: 'user',
-                                            content: message,
-                                            createdAt: DateTime.now()));
-                                    print("Chat addet to database");
+
                                     GlobalData.mode = roleName;
 
                                     await context
@@ -399,7 +423,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                             mode: "text",
                                             isPremium: isPremium!,
                                             language: selectedLanguageCode!,
-                                            role: roleName);
+                                            role: roleName ?? "");
 
                                     _scrollToBottom();
                                   },

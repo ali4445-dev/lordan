@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/paywall/paywall_screen.dart';
+import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/utils/components/loading_background.dart';
 import 'package:lordan_v1/utils/components/search_field.dart';
@@ -258,7 +259,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         padding: EdgeInsets.zero,
         children: [
           // ── Top Bar
-          _buildTopBar(theme, isPremiumUser: false),
+          const SizedBox(height: 10),
+          buildTopBar(theme, isPremiumUser: false),
 
           // ── Search Field
           SearchField(
@@ -274,81 +276,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
           // ── Featured Roles
           if (_featuredRoles?.isNotEmpty ?? false) _buildFeaturedRoles(theme),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopBar(ThemeData theme, {required bool isPremiumUser}) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.15),
-            Colors.white.withValues(alpha: 0.05),
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
-          width: 1.2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // App Logo
-          Image.asset(
-            'assets/brand_logos/logo_text.png',
-            height: 50,
-            fit: BoxFit.contain,
-          ),
-
-          // User status badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              gradient: isPremiumUser
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xFF0D42B5), // gold
-                        Color(0xFF6097ED), // orange
-                      ],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.2),
-                        Colors.white.withValues(alpha: 0.05),
-                      ],
-                    ),
-              border: Border.all(
-                color: isPremiumUser
-                    ? Colors.blue.withValues(alpha: 0.8)
-                    : Colors.white.withValues(alpha: 0.2),
-                width: 1.2,
-              ),
-            ),
-            child: Text(
-              isPremiumUser ? "Premium" : "Free",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isPremiumUser ? Colors.white : Colors.white70,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -513,8 +440,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.4,
+              childAspectRatio: 2.0, // Square cards for better grid alignment
+              crossAxisSpacing: 8, // Reduced spacing for more compact layout
+              mainAxisSpacing: 8,
             ),
             itemCount: _allRoles?.length ?? 0,
             itemBuilder: (context, index) {
@@ -536,10 +464,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   void _handleRoleTap(Role role) {
     if (role.isPremium && _userProfile?.plan != 'premium') {
       context.push(PaywallScreen.routeName);
+
       return;
     } else {
       context.push(ChatTextScreen.routeName, extra: {
-        'roleId': role.id ,
+        'roleId': role.id,
         'roleName': role.name,
         'roleDescription': role.description,
         'isPremium': role.isPremium,
@@ -600,7 +529,7 @@ class _RoleCard extends StatelessWidget {
         width: 150,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: locked
                 ? Colors.white.withValues(alpha: 0.6) // premium border
@@ -662,44 +591,14 @@ class _RoleCard extends StatelessWidget {
             ),
             if (locked)
               Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFFFA500),
-                        Color(0xFFFFD700),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: Colors.white.withValues(alpha: 0.45)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/premium_crown.svg',
-                        colorFilter: const ColorFilter.mode(
-                            Colors.white, BlendMode.srcIn),
-                        width: 14.0,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        "Premium",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                  top: 6,
+                  right: 6,
+                  child: SvgPicture.asset(
+                    'assets/icons/premium_crown.svg',
+                    width: 16,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.yellow, BlendMode.srcIn),
+                  )),
           ],
         ),
       ),

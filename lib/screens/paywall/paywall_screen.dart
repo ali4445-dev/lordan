@@ -1,17 +1,14 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lordan_v1/screens/home_screen.dart';
-import 'package:lordan_v1/screens/paywall/stripe_payment_screen.dart';
-import 'package:lordan_v1/utils/components/primary_back_button.dart';
+import 'package:lordan_v1/providers/subscribtion_provider.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/user_provider.dart';
+
+import '../home_screen.dart';
 import '../../utils/components/gradient_backdrop.dart';
 
 class PaywallScreen extends StatefulWidget {
   static const String routeName = '/paywall';
-
   const PaywallScreen({super.key});
 
   @override
@@ -21,27 +18,16 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   bool _isYearlySelected = false;
 
-  final List<Map<String, String>> _features = const [
-    {
-      "title": "All Premium Roles",
-      "description": "Access 20+ conversation roles"
-    },
-    {
-      "title": "Voice Conversations",
-      "description": "Natural voice interactions"
-    },
-    {
-      "title": "Conversation History",
-      "description": "Resume past sessions anytime"
-    },
-    {"title": "Advanced AI", "description": "Enhanced context understanding"},
-    {"title": "Priority Support", "description": "Get help when you need it"},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
+    final subService = Provider.of<SubscriptionService>(context);
     bool isDark = userProvider.themeMode == ThemeMode.dark;
+
+    // Check if products fetched
+    final products = subService.products;
+    final hasProducts = products.isNotEmpty;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -54,7 +40,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 8),
-                    // Logo
+                    // Logo + Close
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -65,15 +51,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ),
                         GestureDetector(
                           onTap: () => context.push(HomeScreen.routeName),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                          ),
+                          child: const Icon(Icons.close, color: Colors.white),
                         )
                       ],
                     ),
                     const SizedBox(height: 120),
-                    // Title
+
                     const Text(
                       'Upgrade to Premium',
                       style: TextStyle(
@@ -83,7 +66,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Plan Switcher
+
+                    // Plan switcher
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -104,101 +88,98 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             ),
                           ),
                           Expanded(
-                            child: Stack(
-                              fit: StackFit.passthrough,
-                              clipBehavior: Clip.none,
-                              children: [
-                                _PlanWrapper(
-                                  isSelected: _isYearlySelected,
-                                  child: _PlanButton(
-                                    title: 'Yearly',
-                                    isSelected: _isYearlySelected,
-                                    onTap: () => setState(
-                                        () => _isYearlySelected = true),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: -8,
-                                  right: 12,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFD700),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Save 16%',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: _PlanWrapper(
+                              isSelected: _isYearlySelected,
+                              child: _PlanButton(
+                                title: 'Yearly',
+                                isSelected: _isYearlySelected,
+                                onTap: () =>
+                                    setState(() => _isYearlySelected = true),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Features List
-                    ...List.generate(_features.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 28,
-                              height: 28,
+
+                    // Dynamic products
+                    if (hasProducts)
+                      Column(
+                        children: products.map((product) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
                                 color: Colors.white.withAlpha(20),
-                                border: Border.all(
-                                  color: const Color(0xFFFFD700),
-                                  width: 1.5,
-                                ),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.check_rounded,
-                                  size: 16,
-                                  color: Color(0xFFFFD700),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    _features[index]['title']!,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
+                                  const Icon(Icons.star,
+                                      color: Color(0xFFFFD700), size: 28),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.title,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          product.description,
+                                          style: TextStyle(
+                                            color: Colors.white.withAlpha(200),
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
                                   Text(
-                                    _features[index]['description']!,
-                                    style: TextStyle(
-                                      color: Colors.white.withAlpha(179),
-                                      fontSize: 13,
+                                    product.price,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
+                          );
+                        }).toList(),
+                      )
+                    else
+                      // No products
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    '⚠️ No subscriptions found. Check your Play Console setup.'),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white24,
+                          ),
+                          child: const Text(
+                            'No Products Available',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      );
-                    }),
+                      ),
                     const SizedBox(height: 24),
                     // CTA Button
                     Container(
@@ -215,10 +196,38 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ),
                       ),
                       child: ElevatedButton(
-                        onPressed: () {
-                          initPaymentSheet(context, 40);
-                        },
-                        // Navigator.of(context).pushNamed('/verify'),
+                        onPressed: hasProducts
+                            ? () async {
+                                final selectedProduct = _isYearlySelected
+                                    ? products.firstWhere(
+                                        (p) =>
+                                            p.id.contains('annual') ||
+                                            p.id == 'annual_plan_id',
+                                        orElse: () => products.first)
+                                    : products.firstWhere(
+                                        (p) =>
+                                            p.id.contains('monthly') ||
+                                            p.id == 'monthly_plan_id',
+                                        orElse: () => products.first);
+
+                                try {
+                                  await subService.buy(selectedProduct);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          '⏳ Processing purchase for ${selectedProduct.title}...'),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('❌ Error: $e'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              }
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -236,14 +245,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 24),
-                    // Trust text
+
                     Text(
                       'Secure payments • Cancel anytime • Privacy-first',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color:
-                            Colors.white.withValues(alpha: 0.6), // opacity: 0.6
+                        color: Colors.white.withOpacity(0.6),
                         fontSize: 12,
                       ),
                     ),
@@ -263,12 +272,8 @@ class _PlanButton extends StatelessWidget {
   final String title;
   final bool isSelected;
   final VoidCallback onTap;
-
-  const _PlanButton({
-    required this.title,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _PlanButton(
+      {required this.title, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -297,11 +302,7 @@ class _PlanButton extends StatelessWidget {
 class _PlanWrapper extends StatelessWidget {
   final bool isSelected;
   final Widget child;
-
-  const _PlanWrapper({
-    required this.isSelected,
-    required this.child,
-  });
+  const _PlanWrapper({required this.isSelected, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -311,8 +312,7 @@ class _PlanWrapper extends StatelessWidget {
         color: Colors.white.withAlpha(20),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              const Color(0xFFFFFFFF).withValues(alpha: isSelected ? 0.8 : 0.4),
+          color: Colors.white.withOpacity(isSelected ? 0.8 : 0.4),
           width: isSelected ? 1.5 : 1,
         ),
       ),
