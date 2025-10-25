@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
 import 'package:lordan_v1/models/role_model.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
@@ -173,11 +174,25 @@ class AuthProvider extends ChangeNotifier {
 
   /// 🚪 Sign out method
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
-    _session = null;
-    _user = null;
-    UserStorageService.clear();
-    notifyListeners();
+    try {
+      // Supabase sign out
+      await Supabase.instance.client.auth.signOut();
+      _session = null;
+      _user = null;
+      UserStorageService.clear();
+
+      // Google sign out (clears cached account)
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+      await googleSignIn.signOut();
+      await googleSignIn.disconnect();
+
+      print("✅ Fully signed out from Supabase & Google.");
+      notifyListeners();
+    } catch (e) {
+      print("❌ Error signing out: $e");
+    }
   }
 
   // Future<void> saveUserSession() async {

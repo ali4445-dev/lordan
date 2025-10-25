@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/service/trial_service.dart';
+import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../theme.dart';
@@ -27,20 +30,18 @@ class ChatVoiceScreen extends StatefulWidget {
     this.roleDescription,
     this.isPremium = false,
   });
-  
 
   @override
   State<ChatVoiceScreen> createState() => _ChatVoiceScreenState();
 }
 
 class _ChatVoiceScreenState extends State<ChatVoiceScreen>
-
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
 
-   final Map<String, String> languageMap = {
+  final Map<String, String> languageMap = {
     'en-US': 'English',
     'es-ES': 'Spanish',
     'pt-BR': 'Portuguese',
@@ -85,14 +86,11 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
     _animationController.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    bool isDark = userProvider.themeMode == ThemeMode.dark;
 
-    
+    bool isDark = userProvider.themeMode == ThemeMode.dark;
 
     return ChangeNotifierProvider(
       create: (_) => VoiceChatProvider(),
@@ -204,7 +202,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
               ],
             ),
           ),
-           Container(
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             width: MediaQuery.of(context).size.width * 0.3,
             decoration: BoxDecoration(
@@ -238,16 +236,13 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                   color: Color(0xFF0D47A1),
                 ),
                 items: languageMap.entries.map((entry) {
+                  final path =
+                      'assets/country_flags/${entry.key.split('-')[0]}.svg';
+                  print(path);
                   return DropdownMenuItem<String>(
                     value: entry.key,
-                    child: Text(
-                      entry.value,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: SvgPicture.asset(path,
+                        width: MediaQuery.of(context).size.width * 0.1),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -258,7 +253,6 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -280,7 +274,21 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                     MicButton(
                         isPremium: widget.isPremium,
                         isListening: false,
-                        onTap: () => provider.startListening(),
+                        onTap: () => TrialManager.isTrialExpired
+                            ? {
+                                showAppSnackbar(
+                                    context,
+                                    "24 hours trial expired Have to upgrade package to continue chat",
+                                    "info"),
+                                context.push('/paywall'),
+                              }
+                            : provider.state == VoiceState.idle
+                                ? provider.startListening()
+                                : provider.stopListening(
+                                    isPremium: widget.isPremium,
+                                    language: selectedLanguageCode!,
+                                    mode: "tts",
+                                    role: widget.roleName!),
                         logoAsset: 'assets/brand_logos/logo_png.png',
                         onLongPress: !widget.isPremium
                             ? () {
@@ -289,7 +297,11 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                             : () {},
                         onLongPressUp: !widget.isPremium
                             ? () {
-                                provider.stopListening();
+                                provider.stopListening(
+                                    isPremium: widget.isPremium,
+                                    language: selectedLanguageCode!,
+                                    mode: "tts",
+                                    role: widget.roleName!);
                               }
                             : () {}),
                     const SizedBox(height: 8),
@@ -310,7 +322,11 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                 onTap: widget.isPremium
                     ? () {
                         if (provider.isRecording) {
-                          provider.stopListening(isPremium: widget.isPremium,mode:"tts",role: widget.roleName!,language: selectedLanguageCode!);
+                          provider.stopListening(
+                              isPremium: widget.isPremium,
+                              mode: "tts",
+                              role: widget.roleName!,
+                              language: selectedLanguageCode!);
                         } else {
                           provider.startListening();
                         }
@@ -323,7 +339,10 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                     : () {},
                 onLongPressUp: !widget.isPremium
                     ? () {
-                        provider.stopListening(isPremium: widget.isPremium,mode:"tts",role: widget.roleName!);
+                        provider.stopListening(
+                            isPremium: widget.isPremium,
+                            mode: "tts",
+                            role: widget.roleName!);
                       }
                     : () {},
                 logoAsset: 'assets/brand_logos/logo_png.png',

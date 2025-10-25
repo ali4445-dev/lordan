@@ -327,9 +327,9 @@ class _SocialSignInButtons extends StatelessWidget {
                 successLogin =
                     await Supabase.instance.client.auth.signInWithOAuth(
                   OAuthProvider.google,
-                  redirectTo: kIsWeb
-                      ? 'http://localhost:40475'
-                      : null, // must match your local URL
+                  // redirectTo: kIsWeb
+                  //     ? 'http://localhost:40475'
+                  //     : null, // must match your local URL
                 );
                 print(Supabase.instance.client.accessToken);
               } else if (Platform.isAndroid || Platform.isIOS) {

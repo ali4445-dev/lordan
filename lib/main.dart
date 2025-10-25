@@ -12,6 +12,7 @@ import 'package:lordan_v1/providers/stats_provider.dart';
 import 'package:lordan_v1/providers/subscribtion_provider.dart';
 import 'package:lordan_v1/screens/paywall/supscription_screen.dart';
 import 'package:lordan_v1/service/supabase_service.dart';
+import 'package:lordan_v1/service/trial_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -58,12 +59,13 @@ Future<void> main() async {
       anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
     );
 
-    // Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-    //   debugPrint('Auth event: ${data.event}');
-    //   if (data.event == AuthChangeEvent.tokenRefreshed) {
-    //     debugPrint('Access token refreshed ✅');
-    //   }
-    // });
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      debugPrint('Auth event: ${data.event}');
+      if (data.event == AuthChangeEvent.tokenRefreshed) {
+        debugPrint('Access token refreshed ✅');
+      }
+    });
+    await TrialManager.loadTrialData();
 
     runApp(
       MultiProvider(

@@ -136,6 +136,7 @@ import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart
 import 'package:lordan_v1/screens/home_screen_pages/settings/components/setting_tile.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/privacy_policy_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/terms_of_service_screen.dart';
+import 'package:lordan_v1/screens/paywall/paywall_screen.dart';
 import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/screens/start/language_selection_screen.dart';
 import 'package:lordan_v1/screens/start/welcome_screen.dart';
@@ -207,20 +208,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         context.push(LanguageSelectionScreen.routeName);
                       },
                     ),
-                    Divider(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      thickness: 1,
-                      indent: 54.0,
-                    ),
-                    ThemeToggleTile(
-                      iconColor: Colors.white,
-                      isDarkMode: userProvider.themeMode == ThemeMode.dark,
-                      titleStyle: theme.textTheme.labelLarge
-                          ?.copyWith(color: Colors.white),
-                      onToggle: (value) {
-                        // userProvider.toggleTheme(value);
-                      },
-                    ),
+                    // Divider(
+                    //   color: Colors.white.withValues(alpha: 0.25),
+                    //   thickness: 1,
+                    //   indent: 54.0,
+                    // ),
+                    // ThemeToggleTile(
+                    //   iconColor: Colors.white,
+                    //   isDarkMode: userProvider.themeMode == ThemeMode.dark,
+                    //   titleStyle: theme.textTheme.labelLarge
+                    //       ?.copyWith(color: Colors.white),
+                    //   onToggle: (value) {
+                    //     // userProvider.toggleTheme(value);
+                    //   },
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 14.0),
@@ -228,22 +229,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSection(
                   children: [
                     ListTile(
-                      leading: const FaIcon(FontAwesomeIcons.solidCirclePlay,
-                          color: Colors.white),
+                      leading: const FaIcon(
+                        FontAwesomeIcons.solidCirclePlay,
+                        color: Colors.white,
+                      ),
                       title: const Text(
                         'Auto-play voice replies',
                         style: TextStyle(color: Colors.white),
                       ),
-                      trailing: CupertinoSwitch(
-                        value: _autoPlayReplies,
-                        onChanged: (value) {
-                          setState(() => _autoPlayReplies = value);
-                        },
-                        activeTrackColor: Colors.blueAccent,
-                        inactiveTrackColor:
-                            Colors.white.withValues(alpha: 0.25),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (GlobalData.plan != "premium") ...[
+                            const Icon(
+                              FontAwesomeIcons.crown,
+                              size: 16,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          AbsorbPointer(
+                            absorbing: GlobalData.plan !=
+                                "premium", // disables switch if not premium
+                            child: CupertinoSwitch(
+                              value: _autoPlayReplies,
+                              onChanged: (value) {
+                                setState(() => _autoPlayReplies = value);
+                              },
+                              activeTrackColor: Colors.blueAccent,
+                              inactiveTrackColor:
+                                  Colors.white.withValues(alpha: 0.25),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      onTap: () {
+                        if (GlobalData.plan != "premium") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Upgrade to premium to unlock this feature!'),
+                            ),
+                          );
+                          context.push(PaywallScreen.routeName);
+                        }
+                      },
+                    )
                   ],
                 ),
                 const SizedBox(height: 14.0),

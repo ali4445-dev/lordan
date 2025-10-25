@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/paywall/paywall_screen.dart';
 import 'package:lordan_v1/screens/start/components/app_bar.dart';
+import 'package:lordan_v1/service/trial_service.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/utils/components/loading_background.dart';
 import 'package:lordan_v1/utils/components/search_field.dart';
+import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/user_provider.dart';
@@ -121,25 +124,28 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   Future<List<dynamic>> _loadInitialData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     try {
-      final results = await Future.wait([
-        _supabaseService.fetchUserProfile(),
-        _supabaseService.fetchFeaturedRoles(),
-        _supabaseService.fetchRoles(),
-      ]);
+      if (GlobalData.allRoles.isEmpty) {
+        final results = await Future.wait([
+          _supabaseService.fetchUserProfile(),
+          _supabaseService.fetchFeaturedRoles(),
+          _supabaseService.fetchRoles(),
+        ]);
+        GlobalData.allRoles = results;
+      }
 
-      final userRoles = await UserStorageService.getSavedRoles();
+      // final userRoles = await UserStorageService.getSavedRoles();
 
-      final Profile = await UserStorageService.loadUserData();
+      // final Profile = await UserStorageService.loadUserData();
 
-      _userProfile = results[0] as UserProfile;
-      _featuredRoles = results[1] as List<Role>;
-      _allRoles = results[2] as List<Role>;
+      _userProfile = GlobalData.allRoles[0] as UserProfile;
+      _featuredRoles = GlobalData.allRoles[1] as List<Role>;
+      _allRoles = GlobalData.allRoles[2] as List<Role>;
 
       // for (var role in collection) {
 
       // }
 
-      return results;
+      return GlobalData.allRoles;
     } catch (e) {
       // TODO: Remove dummy data once Supabase is connected
       _userProfile = _dummyUser;
@@ -465,6 +471,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     if (role.isPremium && _userProfile?.plan != 'premium') {
       context.push(PaywallScreen.routeName);
 
+      return;
+    } else if (TrialManager.isTrialExpired) {
+      showAppSnackbar(
+          context,
+          "24 hours trial expired Have to upgrade package to continue chat",
+          "info");
+      context.push('/paywall');
       return;
     } else {
       context.push(ChatTextScreen.routeName, extra: {

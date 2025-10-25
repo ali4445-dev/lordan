@@ -7,7 +7,9 @@ import 'package:lordan_v1/providers/auth_provider.dart';
 import 'package:lordan_v1/screens/chat/chat_voice_screen.dart';
 import 'package:lordan_v1/screens/start/components/language_dropdown.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/service/trial_service.dart';
 import 'package:lordan_v1/utils/components/primary_back_button.dart';
+import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../providers/chat_provider.dart';
@@ -416,6 +418,13 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                     _textController.clear();
 
                                     GlobalData.mode = roleName;
+                                    if (TrialManager.isTrialExpired) {
+                                      showAppSnackbar(
+                                          context,
+                                          "24 hours trial expired Have to upgrade package to continue chat",
+                                          "info");
+                                      context.push('/paywall');
+                                    }
 
                                     await context
                                         .read<ChatProvider>()

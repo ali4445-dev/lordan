@@ -109,13 +109,14 @@ class WelcomeScreen extends StatelessWidget {
                       label: "Start Chat",
                       enabled: true,
                       onPressed: () async {
-                        final sessionBox = await UserStorageService.getUserBox;
+                        final restoreData =
+                            await UserStorageService.loadUserData();
 
                         // final user =
                         //     Supabase.instance.client.auth.currentUser!.email;
                         // print(user);
 
-                        if (sessionBox.isNotEmpty) {
+                        if (restoreData) {
                           context.push(HomeScreen.routeName);
                         } else {
                           context.push(LoginScreen.routeName);

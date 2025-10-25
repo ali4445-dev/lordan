@@ -32,7 +32,7 @@ class UserStorageService extends ChangeNotifier {
     ;
     try {
       final now = DateTime.now();
-      final expiryDate = now.add(const Duration(days: 7));
+      final expiryDate = now.add(const Duration(days: 1));
 
       // ✅ Generate a unique user ID
       final userId = const Uuid().v4();
@@ -54,17 +54,22 @@ class UserStorageService extends ChangeNotifier {
       print("✅ User saved locally in Hive.");
 
       final user = AppUser(
-          userKey: userId,
+          email: email ?? "No Email",
+          // userKey: userId,
           status: "standard",
           createdAt: now,
           updatedAt: now,
           platform: Platform.isAndroid ? "android" : "ios");
 
+      GlobalData.setEmail(email ?? "Temparory User");
+
       // ✅ Save remotely in Supabase
-      final response = await supabase.from('users').insert({
-        user.toJson()
-        // empty initially
-      }).select();
+      final response = await supabase
+          .from('entitlements')
+          .insert(user.toJson()
+              // empty initially
+              )
+          .select();
 
       if (response.isNotEmpty) {
         print("✅ User saved remotely in Supabase. ${response}");
@@ -79,7 +84,7 @@ class UserStorageService extends ChangeNotifier {
   }
 
   /// Load user settings (if exist)
-  static Future<void> loadUserData() async {
+  static Future<bool> loadUserData() async {
     final user = await Supabase.instance.client.auth.currentUser;
 
     late final userEmail;
@@ -89,28 +94,42 @@ class UserStorageService extends ChangeNotifier {
 
     final data = _userBox.get(userEmail);
 
-    if (data == null) return;
-    final response = await supabase
-        .from('users')
-        .select()
-        .eq('email', userEmail)
-        .maybeSingle();
+    if (data == null) return false;
+    // final response = await supabase
+    //     .from('entitlements')
+    //     .select()
+    //     .eq('email', userEmail)
+    //     .maybeSingle();
 
-    if (response == null) {
-      print("❌ No user found for $userEmail");
-      return null;
-    }
+    // if (response == null) {
+    //   print("❌ No user found for $userEmail");
+    //   return null;
+    // }
+
+    //  final userData = {
+    //     "user_id": userId,
+    //     "email": email,
+    //     "plan": "standard",
+    //     "under_trial": true,
+    //     "trial_expiary": expiryDate.toIso8601String(),
+    //     "created_at": now.toIso8601String(),
+    //     "updated_at": now.toIso8601String(),
+    //     "summaries": [], // ✅ Initially empty list
+    //   };
 
     final appUser = AppUser.fromJson({
-      'userKey': response['userKey'],
-      'status': response['status'],
-      'created_at': response['created_at'],
-      'expires_at': response['expires_at'],
-      'updated_at': response['updated_at'],
-      'platform': response['platform'] ?? 'unknown',
+      'email': data['email'],
+      'userKey': data['user_id'],
+      'status': data['plan'],
+      'created_at': data['created_at'],
+      'expires_at': data['trial_expiary'],
+      'updated_at': data['updated_at'],
+      'platform': data['platform'] ?? 'unknown',
     });
 
     GlobalData.setUser(appUser);
+    print("App User Setted successfully ${GlobalData.user.toString()}");
+    return true;
 
     // Restore locale
 

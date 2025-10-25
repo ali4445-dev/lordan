@@ -9,7 +9,7 @@ import 'package:lordan_v1/global.dart';
 Future<Map<String, dynamic>> sendToLordan(String message,
     {String role = 'study',
     String plan = 'free',
-    String mode = 'text',
+    String mode = "text",
     String locale = 'en-US',
     String userKey = 'user123'}) async {
   await dotenv.load(fileName: ".env");
@@ -48,11 +48,13 @@ Future<Map<String, dynamic>> sendToLordan(String message,
         // will be null if mode=text
       };
     }
+    print(jsonBody['reply']);
+    jsonBody['audio_b64'];
 
     // ✅ Always return structured map (easier to handle TTS + text)
     return {
       'reply': jsonBody['reply'] ?? '',
-      'audio_b64': jsonBody['audio_b64'],
+      'audio_b64': jsonBody['audio_b64'] ?? '',
       // will be null if mode=text
     };
   } else {

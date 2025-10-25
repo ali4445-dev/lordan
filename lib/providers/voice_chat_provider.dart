@@ -17,6 +17,7 @@ class VoiceChatProvider with ChangeNotifier {
   // Core dependencies
   final SpeechToText _speech = SpeechToText();
   final FlutterTts _tts = FlutterTts();
+  Timer? _silenceTimer;
 
   // State
   VoiceState _state = VoiceState.idle;
@@ -142,24 +143,41 @@ class VoiceChatProvider with ChangeNotifier {
         onResult: (result) {
           notifyListeners();
           _transcript = result.recognizedWords;
+          _resetSilenceTimer();
         },
         cancelOnError: true,
         partialResults: true,
         listenMode:
             _isContinuousMode ? ListenMode.dictation : ListenMode.confirmation,
       );
+      _startSilenceTimer();
     } catch (e) {
       _handleError('Error starting speech recognition: $e');
     }
   }
 
+  void _startSilenceTimer() {
+    _silenceTimer?.cancel();
+    _silenceTimer = Timer(const Duration(seconds: 10), () {
+      debugPrint(
+          "🕓 No speech detected for 10 seconds — stopping listening...");
+      stopListening();
+    });
+  }
+
+  void _resetSilenceTimer() {
+    _silenceTimer?.cancel();
+    _startSilenceTimer();
+  }
+
   Future<void> stopListening(
-      {String mode = 'text',
+      {String mode = 'tts',
       bool isPremium = false,
       String language = 'en-US',
       String role = "study"}) async {
     if (_state != VoiceState.listening) return;
-
+    await _tts.setLanguage(language);
+    _silenceTimer?.cancel();
     if (_startTime!.second > 0) {
       // Step 3: Get end time
       DateTime endTime = DateTime.now();
@@ -180,7 +198,7 @@ class VoiceChatProvider with ChangeNotifier {
   }
 
   void _processTranscript(
-      {String mode = 'text',
+      {String mode = 'tts',
       bool isPremium = false,
       String language = 'en-US',
       String role = "study"}) async {
@@ -204,8 +222,6 @@ class VoiceChatProvider with ChangeNotifier {
     notifyListeners();
 
     print(_transcript);
-    ChatStorageService.addMessage(
-        chatMode: GlobalData.mode ?? " ", message: _transcript);
 
     await dynamicVoice();
 
@@ -216,18 +232,31 @@ class VoiceChatProvider with ChangeNotifier {
         locale: language,
         role: role);
 
-    // _messages.add(Message(
-    //   id: DateTime.now().toString(),
-    //   role: 'assistant',
-    //   content: aiResponse['reply'] ?? "Please Wait",
-    //   createdAt: DateTime.now(),
-    // ));
+    _messages.add(Message(
+      id: DateTime.now().toString(),
+      role: 'assistant',
+      content: aiResponse['reply'] ?? "Please Wait",
+      createdAt: DateTime.now(),
+    ));
 
     print(aiResponse["reply"]);
-    print(aiResponse["audio_64"]);
+    print(aiResponse["audio_b64"]);
+    // if (aiResponse["audio_b64"] != null) {
+    // playBase64Audio(aiResponse["audio_b64"]);
+    // } else {
+    await speak(aiResponse['reply']);
+    if (GlobalData.messageCount == 3) {
+      final Map<String, dynamic> jsonData = await sendToLordan('');
+      ChatStorageService.addMessage(
+          chatMode: GlobalData.mode ?? " ", message: aiResponse['reply'] ?? "");
+      print("Summary Add to database");
+      GlobalData.messageCount = 0;
+    }
+    // }
+
     // Speak the response
 
-    await speak(aiResponse['reply']);
+    // await speak(aiResponse['reply']);
     // ChatStorageService.addMessage(
     //     chatMode: GlobalData.mode!,
     //     message: Message(
@@ -278,6 +307,7 @@ class VoiceChatProvider with ChangeNotifier {
     _recognitionSubscription?.cancel();
     _speech.cancel();
     _tts.stop();
+    _silenceTimer?.cancel();
     super.dispose();
   }
 

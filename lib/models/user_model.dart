@@ -8,9 +8,10 @@ class AppUser extends ChangeNotifier {
   DateTime? expiresAt;
   DateTime updatedAt;
   String platform; // "android", "ios", "web"
-
+  String email;
   AppUser({
     String? userKey,
+    required this.email,
     required this.status,
     required this.createdAt,
     this.expiresAt,
@@ -24,6 +25,7 @@ class AppUser extends ChangeNotifier {
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
+      email: json['email'] ?? "No Email Logged in",
       userKey: json['userKey'] ?? json['user_id'], // support both key names
       status: json['status'] ?? 'free',
       createdAt: DateTime.parse(json['created_at']),
@@ -37,7 +39,8 @@ class AppUser extends ChangeNotifier {
 
   Map<String, dynamic> toJson() {
     return {
-      'userKey': userKey,
+      'email': email,
+      // 'user_key': userKey,
       'status': status,
       'created_at': createdAt.toIso8601String(),
       'expires_at': expiresAt?.toIso8601String(),
