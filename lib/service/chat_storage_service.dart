@@ -25,6 +25,7 @@ class ChatStorageService {
       "time": DateTime.now().toIso8601String(),
       "content": message,
     };
+
     String? email = await Supabase.instance.client.auth.currentUser!.email;
     print(message);
     print(chatMode);
@@ -49,6 +50,13 @@ class ChatStorageService {
 
     final updatedSummaries =
         List<Map<String, dynamic>>.from(userData['summaries'] ?? []);
+    if (GlobalData.user.status == "premium" && updatedSummaries.length == 100) {
+      updatedSummaries.removeAt(0);
+    } else if ((GlobalData.user.status == "standard" ||
+            GlobalData.user.status == "trial") &&
+        updatedSummaries.length == 10) {
+      updatedSummaries.removeAt(0);
+    }
     print(updatedSummaries);
     updatedSummaries.add(summary);
     print("\n${updatedSummaries}");

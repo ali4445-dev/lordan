@@ -170,13 +170,13 @@ class _SignedOutContentState extends State<_SignedOutContent> {
                     loginMethod = LoginMethod.email;
                   }),
                 ),
-                ToggleButton(
-                  label: "Phone",
-                  // isActive: loginMethod == LoginMethod.phone,
-                  isActive: false,
+                // ToggleButton(
+                //   label: "Phone",
+                //   // isActive: loginMethod == LoginMethod.phone,
+                //   isActive: false,
 
-                  onTap: () => const Tooltip(message: "Availabe in Future"),
-                ),
+                //   onTap: () => const Tooltip(message: "Availabe in Future"),
+                // ),
               ],
             ),
           ),

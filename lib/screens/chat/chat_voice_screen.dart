@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/service/trial_service.dart';
 import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:provider/provider.dart';
@@ -204,7 +205,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            width: MediaQuery.of(context).size.width * 0.3,
+            width: MediaQuery.of(context).size.width * 0.2,
             decoration: BoxDecoration(
               color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
               borderRadius: BorderRadius.circular(18),
@@ -235,6 +236,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF0D47A1),
                 ),
+
                 items: languageMap.entries.map((entry) {
                   final path =
                       'assets/country_flags/${entry.key.split('-')[0]}.svg';
@@ -247,7 +249,10 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => selectedLanguageCode = value);
+                    GlobalData.setLanguage(selectedLanguageCode);
+                    setState(
+                      () => selectedLanguageCode = value,
+                    );
                   }
                 },
               ),
@@ -292,6 +297,7 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                         logoAsset: 'assets/brand_logos/logo_png.png',
                         onLongPress: !widget.isPremium
                             ? () {
+                                print(selectedLanguageCode);
                                 provider.startListening();
                               }
                             : () {},
@@ -342,7 +348,8 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                         provider.stopListening(
                             isPremium: widget.isPremium,
                             mode: "tts",
-                            role: widget.roleName!);
+                            role: widget.roleName!,
+                            language: selectedLanguageCode!);
                       }
                     : () {},
                 logoAsset: 'assets/brand_logos/logo_png.png',
@@ -407,6 +414,8 @@ class _ChatVoiceScreenState extends State<ChatVoiceScreen>
                               onChanged: (value) {
                                 if (provider.isRecording) {
                                   provider.stopListening();
+
+                                  // provider.startFlowMode();
                                 }
                                 provider.toggleContinuousMode(value);
                               },

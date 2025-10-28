@@ -245,7 +245,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/providers/auth_provider.dart';
+import 'package:lordan_v1/screens/home_screen.dart';
+import 'package:lordan_v1/screens/home_screen_pages/activities/activities_screen.dart';
 import 'package:lordan_v1/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -379,7 +382,11 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToNextScreen() async {
-    context.go(PaywallScreen.routeName);
+    if (GlobalData.user.status.toString().toUpperCase() != "PREMIUM") {
+      context.go(PaywallScreen.routeName);
+    } else {
+      context.go(HomeScreen.routeName);
+    }
   }
 
   @override

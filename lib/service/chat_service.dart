@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/methods/response_formatter.dart';
 
 /// ✅ Sends a message to your Supabase Edge Function
 /// Supports both 'text' and 'tts' modes.
@@ -24,7 +25,7 @@ Future<Map<String, dynamic>> sendToLordan(String message,
       'Authorization': 'Bearer $supabaseAnonKey',
       'Content-Type': 'application/json',
     },
-    body: GlobalData.messageCount != 3
+    body: GlobalData.messageCount != 12
         ? jsonEncode({
             'message': message,
             'plan': plan,
@@ -38,10 +39,11 @@ Future<Map<String, dynamic>> sendToLordan(String message,
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> jsonBody = jsonDecode(response.body);
-    if (GlobalData.messageCount! < 3) {
+    if (GlobalData.messageCount! < 12) {
       GlobalData.messageCount = GlobalData.messageCount! + 1;
     } else {
       print("Reached Summary Stage");
+
       return {
         'summary': jsonBody['summary'] ?? '',
         'mode': jsonBody['mode'] ?? ''
@@ -50,10 +52,11 @@ Future<Map<String, dynamic>> sendToLordan(String message,
     }
     print(jsonBody['reply']);
     jsonBody['audio_b64'];
+    final formattedText = formatApiText(jsonBody['reply']);
 
     // ✅ Always return structured map (easier to handle TTS + text)
     return {
-      'reply': jsonBody['reply'] ?? '',
+      'reply': formattedText,
       'audio_b64': jsonBody['audio_b64'] ?? '',
       // will be null if mode=text
     };

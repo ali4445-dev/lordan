@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:lordan_v1/service/user_storage_service.dart';
 
 class SubscriptionService with ChangeNotifier {
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -10,10 +11,7 @@ class SubscriptionService with ChangeNotifier {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
 
   // ✅ Real product IDs from Play Console
-  static const Set<String> _kIds = {
-    'annual_plan_id',
-    'monthly_plan_id',
-  };
+  static const Set<String> _kIds = {'lordan_subscription'};
 
   bool get isAvailable => _available;
   List<ProductDetails> get products => _products;
@@ -50,11 +48,13 @@ class SubscriptionService with ChangeNotifier {
     }
   }
 
-  void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
+  void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
     _purchases.addAll(purchaseDetailsList);
     for (final purchase in purchaseDetailsList) {
       if (purchase.status == PurchaseStatus.purchased) {
-        debugPrint('✅ Purchase successful: ${purchase.productID}');
+        debugPrint(
+            '✅ Purchase successful: ${purchase.productID}  with ${purchase.purchaseID}');
+        UserStorageService.saveUserStatus(purchase.productID);
       } else if (purchase.status == PurchaseStatus.error) {
         debugPrint('❌ Purchase error: ${purchase.error}');
       }
@@ -73,5 +73,21 @@ class SubscriptionService with ChangeNotifier {
 
   void disposeService() {
     _subscription?.cancel();
+  }
+
+  Future<void> simulatePurchase(String productId) async {
+    final fakePurchase = PurchaseDetails(
+      purchaseID: DateTime.now().millisecondsSinceEpoch.toString(),
+      productID: productId,
+      status: PurchaseStatus.purchased,
+      transactionDate: DateTime.now().toString(),
+      verificationData: PurchaseVerificationData(
+        localVerificationData: "mock",
+        serverVerificationData: "mock",
+        source: "mock",
+      ),
+    );
+
+    _onPurchaseUpdate([fakePurchase]);
   }
 }

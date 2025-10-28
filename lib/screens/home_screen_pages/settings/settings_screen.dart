@@ -240,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (GlobalData.plan != "premium") ...[
+                          if (GlobalData.user.status != "premium") ...[
                             const Icon(
                               FontAwesomeIcons.crown,
                               size: 16,
@@ -249,12 +249,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const SizedBox(width: 8),
                           ],
                           AbsorbPointer(
-                            absorbing: GlobalData.plan !=
+                            absorbing: GlobalData.user.status !=
                                 "premium", // disables switch if not premium
                             child: CupertinoSwitch(
-                              value: _autoPlayReplies,
+                              value: GlobalData.autoPlay,
                               onChanged: (value) {
                                 setState(() => _autoPlayReplies = value);
+                                GlobalData.setAutoReply(value);
                               },
                               activeTrackColor: Colors.blueAccent,
                               inactiveTrackColor:

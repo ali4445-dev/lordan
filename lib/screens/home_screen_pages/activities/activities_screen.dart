@@ -278,7 +278,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           _buildRolesGrid(theme),
 
           // ── Premium Banner
-          if (_userProfile?.plan != 'premium') _buildPremiumBanner(theme),
+          if (GlobalData.user.status != 'premium') _buildPremiumBanner(theme),
 
           // ── Featured Roles
           if (_featuredRoles?.isNotEmpty ?? false) _buildFeaturedRoles(theme),
@@ -314,7 +314,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 final role = _featuredRoles![index];
                 return _RoleCard(
                   role: role,
-                  isPremiumUser: _userProfile?.plan == 'premium',
+                  isPremiumUser: GlobalData.user.status == 'premium',
                   onTap: () => _handleRoleTap(role),
                 );
               },
@@ -391,7 +391,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               ),
               padding: EdgeInsets.zero,
             ),
-            onPressed: () => context.push('/paywall'),
+            onPressed: () => GlobalData.user.status != "premium"
+                ? context.push('/paywall')
+                : () {
+                    context.push(ChatTextScreen.routeName, extra: {
+                      // 'roleId': role.id,
+                      // 'roleName': role.name,
+                      // 'roleDescription': role.description,
+                      // 'isPremium': role.isPremium,
+                    });
+                  },
             child: Ink(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -455,8 +464,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               final role = _allRoles![index];
               return _RoleCard(
                 role: role,
-                isPremiumUser: _userProfile?.plan == 'premium',
+                isPremiumUser: GlobalData.user.status == 'premium',
                 onTap: () {
+                  GlobalData.mode = role.name;
                   _handleRoleTap(role);
                 },
               );
@@ -468,14 +478,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   void _handleRoleTap(Role role) {
-    if (role.isPremium && _userProfile?.plan != 'premium') {
+    if (role.isPremium && GlobalData.user.status != 'premium') {
       context.push(PaywallScreen.routeName);
 
       return;
     } else if (TrialManager.isTrialExpired) {
       showAppSnackbar(
           context,
-          "24 hours trial expired Have to upgrade package to continue chat",
+          "Subscribtion expired You Have to upgrade package to continue chat",
           "info");
       context.push('/paywall');
       return;
@@ -484,7 +494,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         'roleId': role.id,
         'roleName': role.name,
         'roleDescription': role.description,
-        'isPremium': role.isPremium,
+        'isPremium': GlobalData.user.status == "premium",
       });
     }
   }

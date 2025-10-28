@@ -65,7 +65,6 @@ Future<void> main() async {
         debugPrint('Access token refreshed ✅');
       }
     });
-    await TrialManager.loadTrialData();
 
     runApp(
       MultiProvider(

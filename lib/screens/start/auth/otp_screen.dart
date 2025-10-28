@@ -97,7 +97,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       style: theme.textTheme.titleLarge?.copyWith(
                           color: Colors.white, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 48.0),
+                    const SizedBox(height: 100.0),
 
                     ///  OTP autofill
                     Form(
@@ -164,12 +164,12 @@ class _OtpScreenState extends State<OtpScreen> {
                                 ?.copyWith(color: Colors.white),
                           ),
                     const Spacer(),
-                    PrimaryButton(
-                      horizontalMargin: 0,
-                      label: 'Confirm',
-                      onPressed: () async {},
-                      enabled: true,
-                    ),
+                    // PrimaryButton(
+                    //   horizontalMargin: 0,
+                    //   label: 'Confirm',
+                    //   onPressed: () async {},
+                    //   enabled: true,
+                    // ),
                   ],
                 ),
               ),

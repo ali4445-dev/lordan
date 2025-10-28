@@ -1,12 +1,15 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/models/user_model.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/service/trial_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../providers/user_provider.dart';
@@ -24,12 +27,18 @@ class UserStorageService extends ChangeNotifier {
     String? email;
     if (currentUser != null) {
       email = currentUser.email;
+      Box? data = await getUserBox.get(email);
+
+      if (data != null) {
+        debugPrint("User Existing Session Restrored as :\n${data.toMap()}");
+        loadUserData();
+        return;
+      }
     } else {
       print("SessionCannot be saved");
       return;
     }
 
-    ;
     try {
       final now = DateTime.now();
       final expiryDate = now.add(const Duration(days: 1));
@@ -41,9 +50,9 @@ class UserStorageService extends ChangeNotifier {
       final userData = {
         "user_id": userId,
         "email": email,
-        "plan": "standard",
+        "status": "trial",
         "under_trial": true,
-        "trial_expiary": expiryDate.toIso8601String(),
+        "expires_at": expiryDate.toIso8601String(),
         "created_at": now.toIso8601String(),
         "updated_at": now.toIso8601String(),
         "summaries": [], // ✅ Initially empty list
@@ -52,30 +61,30 @@ class UserStorageService extends ChangeNotifier {
       // ✅ Save locally in Hive
       await getUserBox.put(email, userData);
       print("✅ User saved locally in Hive.");
+      await loadUserData();
+      // final user = AppUser(
+      //     email: email ?? "No Email",
+      //     // userKey: userId,
+      //     status: "standard",
+      //     createdAt: now,
+      //     updatedAt: now,
+      //     platform: Platform.isAndroid ? "android" : "ios");
 
-      final user = AppUser(
-          email: email ?? "No Email",
-          // userKey: userId,
-          status: "standard",
-          createdAt: now,
-          updatedAt: now,
-          platform: Platform.isAndroid ? "android" : "ios");
-
-      GlobalData.setEmail(email ?? "Temparory User");
+      // GlobalData.setEmail(email ?? "Temparory User");
 
       // ✅ Save remotely in Supabase
-      final response = await supabase
-          .from('entitlements')
-          .insert(user.toJson()
-              // empty initially
-              )
-          .select();
+      // final response = await supabase
+      //     .from('entitlements')
+      //     .insert(user.toJson()
+      //         // empty initially
+      //         )
+      //     .select();
 
-      if (response.isNotEmpty) {
-        print("✅ User saved remotely in Supabase. ${response}");
-      } else {
-        print("⚠️ Supabase insert returned empty response.");
-      }
+      // if (response.isNotEmpty) {
+      //   print("✅ User saved remotely in Supabase. ${response}");
+      // } else {
+      //   print("⚠️ Supabase insert returned empty response.");
+      // }
     } catch (e) {
       print("❌ Error creating user: $e");
     }
@@ -86,50 +95,51 @@ class UserStorageService extends ChangeNotifier {
   /// Load user settings (if exist)
   static Future<bool> loadUserData() async {
     final user = await Supabase.instance.client.auth.currentUser;
-
-    late final userEmail;
     if (user != null) {
-      userEmail = await user.email;
+      final userEmail = user.email;
+
+      final data = _userBox.get(userEmail);
+
+      if (data == null) return false;
+      // final response = await supabase
+      //     .from('entitlements')
+      //     .select()
+      //     .eq('email', userEmail)
+      //     .maybeSingle();
+
+      // if (response == null) {
+      //   print("❌ No user found for $userEmail");
+      //   return null;
+      // }
+
+      //  final userData = {
+      //     "user_id": userId,
+      //     "email": email,
+      //     "plan": "standard",
+      //     "under_trial": true,
+      //     "trial_expiary": expiryDate.toIso8601String(),
+      //     "created_at": now.toIso8601String(),
+      //     "updated_at": now.toIso8601String(),
+      //     "summaries": [], // ✅ Initially empty list
+      //   };
+
+      final appUser = AppUser.fromJson({
+        'email': data['email'],
+        'userKey': data['user_id'],
+        'status': data['status'],
+        'created_at': data['created_at'],
+        'expires_at': data['expires_at'],
+        'updated_at': data['updated_at'],
+        'platform': data['platform'] ?? 'unknown',
+      });
+
+      GlobalData.setUser(appUser);
+      print("App User Setted successfully ${GlobalData.user.toString()}");
+      await TrialManager.loadTrialData();
+
+      return true;
     }
-
-    final data = _userBox.get(userEmail);
-
-    if (data == null) return false;
-    // final response = await supabase
-    //     .from('entitlements')
-    //     .select()
-    //     .eq('email', userEmail)
-    //     .maybeSingle();
-
-    // if (response == null) {
-    //   print("❌ No user found for $userEmail");
-    //   return null;
-    // }
-
-    //  final userData = {
-    //     "user_id": userId,
-    //     "email": email,
-    //     "plan": "standard",
-    //     "under_trial": true,
-    //     "trial_expiary": expiryDate.toIso8601String(),
-    //     "created_at": now.toIso8601String(),
-    //     "updated_at": now.toIso8601String(),
-    //     "summaries": [], // ✅ Initially empty list
-    //   };
-
-    final appUser = AppUser.fromJson({
-      'email': data['email'],
-      'userKey': data['user_id'],
-      'status': data['plan'],
-      'created_at': data['created_at'],
-      'expires_at': data['trial_expiary'],
-      'updated_at': data['updated_at'],
-      'platform': data['platform'] ?? 'unknown',
-    });
-
-    GlobalData.setUser(appUser);
-    print("App User Setted successfully ${GlobalData.user.toString()}");
-    return true;
+    return false;
 
     // Restore locale
 
@@ -154,7 +164,7 @@ class UserStorageService extends ChangeNotifier {
 
   /// Clear all data for a specific user
   static Future<void> clear() async {
-    await _userBox.clear();
+    // await _userBox.clear();
     print("User box is ${_userBox.toMap()}");
   }
 
@@ -194,19 +204,51 @@ class UserStorageService extends ChangeNotifier {
     print(userBox.toMap());
   }
 
-  static void saveUserStatus() async {
+  static Future<void> saveUserStatus(String productId) async {
     final now = DateTime.now();
-    final expiryDate = now.add(const Duration(days: 30));
-    final email = supabase.auth.currentUser!.email;
+    DateTime expiryDate;
 
-    await _userBox.put("status", "premium");
-    await _userBox.put("updated_at", now.toIso8601String());
-    await _userBox.put("expiare_at", expiryDate.toIso8601String());
+    // 🔹 Determine expiry duration based on plan type
+    if (productId.toLowerCase().contains("monthly")) {
+      expiryDate = now.add(const Duration(days: 30));
+    } else if (productId.toLowerCase().contains("yearly")) {
+      expiryDate = now.add(const Duration(days: 365));
+    } else {
+      // Default to a 1-day trial if not recognized
+      expiryDate = now.add(const Duration(hours: 24));
+    }
 
-    await Supabase.instance.client.from('users').update({
-      'status': 'premium',
-      'expires_at': expiryDate.toIso8601String(),
-      'updated_at': now.toIso8601String(),
-    }).eq('email', email!);
+    final email = Supabase.instance.client.auth.currentUser?.email;
+    if (email == null) {
+      print("⚠️ No logged-in user found when saving status!");
+      return;
+    }
+
+    final box = _userBox; // Or: final box = getUserBox;
+    final existingData =
+        Map<String, dynamic>.from(box.get(email, defaultValue: {}));
+
+    // 🔹 Update user data locally in Hive
+    existingData["status"] = productId;
+    existingData["updated_at"] = now.toIso8601String();
+    existingData["expires_at"] = expiryDate.toIso8601String();
+
+    await box.put(email, existingData);
+    print("💾 Hive user updated: $existingData");
+
+    // 🔹 Sync with Supabase (optional but recommended)
+    // try {
+    //   await Supabase.instance.client.from('users').update({
+    //     'status': productId,
+    //     'expires_at': expiryDate.toIso8601String(),
+    //     'updated_at': now.toIso8601String(),
+    //   }).eq('email', email);
+    //   print("✅ Supabase user status updated for $email");
+    // } catch (e) {
+    //   print("⚠️ Failed to update user status on Supabase: $e");
+    // }
+
+    // 🔹 Reload global user data (if your app caches it)
+    await loadUserData();
   }
 }

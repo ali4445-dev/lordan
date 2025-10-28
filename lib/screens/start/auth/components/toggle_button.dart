@@ -22,14 +22,18 @@ class ToggleButton extends StatelessWidget {
           curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? Colors.white.withValues(alpha: 0.9) : Colors.transparent,
+            color: isActive
+                ? const Color.fromARGB(255, 255, 255, 255)
+                    .withValues(alpha: 0.9)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(30),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: TextStyle(
-              color: isActive ? Colors.black : Colors.white.withValues(alpha: 0.8),
+              color:
+                  isActive ? Colors.black : Colors.white.withValues(alpha: 0.8),
               fontWeight: FontWeight.w600,
             ),
           ),

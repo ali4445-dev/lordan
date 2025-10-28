@@ -201,17 +201,19 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                 final selectedProduct = _isYearlySelected
                                     ? products.firstWhere(
                                         (p) =>
-                                            p.id.contains('annual') ||
-                                            p.id == 'annual_plan_id',
+                                            p.id.contains('yearly') ||
+                                            p.id == 'standard-yearly',
                                         orElse: () => products.first)
                                     : products.firstWhere(
                                         (p) =>
                                             p.id.contains('monthly') ||
-                                            p.id == 'monthly_plan_id',
+                                            p.id == 'standard-monthly',
                                         orElse: () => products.first);
 
                                 try {
                                   await subService.buy(selectedProduct);
+                                  // subService
+                                  //     .simulatePurchase(selectedProduct.title);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -227,7 +229,25 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                   );
                                 }
                               }
-                            : null,
+                            : () {
+                                try {
+                                  // await subService.buy(selectedProduct);
+                                  subService.simulatePurchase("premium");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          '⏳ Processing purchase for premium...'),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('❌ Error: $e'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,

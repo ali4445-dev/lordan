@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/service/audio_service.dart';
 import 'package:lordan_v1/service/chat_service.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/utils/components/snack_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -49,18 +51,28 @@ class VoiceChatProvider with ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
   DateTime? _startTime;
+  int flowCount = 1;
   VoiceChatProvider() {
     _initTts();
   }
 
   Future<void> _initTts() async {
     await _tts.setLanguage('en-US');
-    await _tts.setSpeechRate(0.4);
+    await _tts.setSpeechRate(0.5);
     await _tts.setPitch(1.0);
 
-    _tts.setCompletionHandler(() {
-      if (_isContinuousMode && _state == VoiceState.speaking) {
-        _state = VoiceState.listening;
+    _tts.setCompletionHandler(() async {
+      print("VoiceState is $_state");
+      if (_isContinuousMode &&
+          _state == VoiceState.speaking &&
+          flowCount <= 6) {
+        flowCount++;
+        debugPrint("🔁 Restarting mic for conversation $flowCount");
+
+        // Wait a tiny bit before restarting recognition
+        await Future.delayed(const Duration(milliseconds: 800));
+        _state = VoiceState.idle;
+        print("Listening Again...");
         startListening();
       } else {
         _state = VoiceState.idle;
@@ -158,9 +170,8 @@ class VoiceChatProvider with ChangeNotifier {
 
   void _startSilenceTimer() {
     _silenceTimer?.cancel();
-    _silenceTimer = Timer(const Duration(seconds: 10), () {
-      debugPrint(
-          "🕓 No speech detected for 10 seconds — stopping listening...");
+    _silenceTimer = Timer(const Duration(seconds: 9), () {
+      debugPrint("🕓 No speech detected for 5 seconds — stopping listening...");
       stopListening();
     });
   }
@@ -224,13 +235,15 @@ class VoiceChatProvider with ChangeNotifier {
     print(_transcript);
 
     await dynamicVoice();
+    final userKey = GlobalData.user.user_key;
 
     // TODO: Replace this with actual API call
     final aiResponse = await sendToLordan(_transcript,
         mode: mode,
         plan: isPremium ? "premium" : "free",
         locale: language,
-        role: role);
+        role: role,
+        userKey: userKey);
 
     _messages.add(Message(
       id: DateTime.now().toString(),
@@ -245,13 +258,20 @@ class VoiceChatProvider with ChangeNotifier {
     // playBase64Audio(aiResponse["audio_b64"]);
     // } else {
     await speak(aiResponse['reply']);
-    if (GlobalData.messageCount == 3) {
-      final Map<String, dynamic> jsonData = await sendToLordan('');
-      ChatStorageService.addMessage(
-          chatMode: GlobalData.mode ?? " ", message: aiResponse['reply'] ?? "");
-      print("Summary Add to database");
-      GlobalData.messageCount = 0;
+    try {
+      if (GlobalData.messageCount == 12) {
+        final Map<String, dynamic> jsonData =
+            await sendToLordan('', userKey: userKey);
+        ChatStorageService.addMessage(
+            chatMode: GlobalData.mode ?? " ",
+            message: aiResponse['reply'] ?? "");
+        print("Summary Add to database");
+        GlobalData.messageCount = 0;
+      }
+    } catch (e) {
+      print("Error is $e");
     }
+
     // }
 
     // Speak the response

@@ -3,6 +3,7 @@ import 'package:lordan_v1/service/user_storage_service.dart';
 
 class GlobalData {
   static int? messageCount = 0;
+  static bool autoPlay = false;
 
   static String email = "Guest User";
   static String? uid;
@@ -13,6 +14,7 @@ class GlobalData {
   static dynamic session; // If you store Supabase Session
   static dynamic user; // If you store Supabase User
   static List<Object> allRoles = [];
+  static void setAutoReply(bool autoreply) => autoPlay = autoreply;
   // Setters
   static void setEmail(String newEmail) => email = newEmail;
   static void setUid(String? newUid) => uid = newUid;

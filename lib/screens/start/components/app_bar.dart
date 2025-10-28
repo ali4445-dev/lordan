@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lordan_v1/global.dart';
 
 Widget buildTopBar(ThemeData theme,
     {required bool isPremiumUser, bool isDefaultPadding = false}) {
@@ -63,7 +64,7 @@ Widget buildTopBar(ThemeData theme,
             ),
           ),
           child: Text(
-            isPremiumUser ? "Premium" : "Standard",
+            GlobalData.user.status.toString().toUpperCase(),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: isPremiumUser ? Colors.white : Colors.white70,

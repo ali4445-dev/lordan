@@ -51,11 +51,16 @@ class ChatProvider with ChangeNotifier {
 
       // ✅ Prepare to receive assistant response
       final responseId = _uuid.v4();
+      final user_id = GlobalData.user.user_key;
 
       final Map<String, dynamic> jsonData = await sendToLordan(content,
-          locale: language, plan: !isPremium ? 'free' : 'premium', role: role);
-      if (GlobalData.messageCount == 3) {
-        final Map<String, dynamic> jsonData = await sendToLordan('');
+          locale: language,
+          plan: !isPremium ? 'free' : 'premium',
+          role: role,
+          userKey: user_id);
+      if (GlobalData.messageCount == 12) {
+        final Map<String, dynamic> jsonData =
+            await sendToLordan('', userKey: user_id);
         ChatStorageService.addMessage(
           chatMode: role,
           message: jsonData["summary"].trim(),
@@ -69,7 +74,8 @@ class ChatProvider with ChangeNotifier {
 
 // Play it
         if (audioB64 != null && audioB64.isNotEmpty) {
-          await playBase64Audio(audioB64);
+          // await playBase64Audio(audioB64);
+          print("Has to play the api incomingsound ${audioB64}");
         } else {
           print("No audio returned from AI.");
         }

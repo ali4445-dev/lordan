@@ -255,18 +255,18 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                     color: Colors.white,
                   ),
                 ),
-                if ((widget.roleDescription ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.roleDescription ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                // if ((widget.roleDescription ?? '').isNotEmpty) ...[
+                //   const SizedBox(height: 4),
+                //   Text(
+                //     widget.roleDescription ?? '',
+                //     style: TextStyle(
+                //       fontSize: 14,
+                //       color: Colors.white.withValues(alpha: 0.7),
+                //     ),
+                //     maxLines: 1,
+                //     overflow: TextOverflow.ellipsis,
+                //   ),
+                // ],
               ],
             ),
           ),
@@ -410,32 +410,32 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                               Colors.white, BlendMode.srcIn),
                           width: 30,
                         ),
-                        onPressed:
-                            (!hasText || context.read<ChatProvider>().isLoading)
-                                ? null
-                                : () async {
-                                    final message = value.text;
-                                    _textController.clear();
+                        onPressed: (!hasText ||
+                                context.read<ChatProvider>().isLoading)
+                            ? null
+                            : () async {
+                                final message = value.text;
+                                _textController.clear();
 
-                                    GlobalData.mode = roleName;
-                                    if (TrialManager.isTrialExpired) {
-                                      showAppSnackbar(
-                                          context,
-                                          "24 hours trial expired Have to upgrade package to continue chat",
-                                          "info");
-                                      context.push('/paywall');
-                                    }
+                                GlobalData.mode = roleName;
+                                if (TrialManager.isTrialExpired) {
+                                  showAppSnackbar(
+                                      context,
+                                      "24 hours trial expired Have to upgrade package to continue chat",
+                                      "info");
+                                  context.push('/paywall');
+                                }
 
-                                    await context
-                                        .read<ChatProvider>()
-                                        .sendMessage(message,
-                                            mode: "text",
-                                            isPremium: isPremium!,
-                                            language: selectedLanguageCode!,
-                                            role: roleName ?? "");
+                                await context.read<ChatProvider>().sendMessage(
+                                    message,
+                                    mode: "text",
+                                    isPremium:
+                                        GlobalData.user.status == "premium",
+                                    language: selectedLanguageCode!,
+                                    role: GlobalData.mode!);
 
-                                    _scrollToBottom();
-                                  },
+                                _scrollToBottom();
+                              },
                       );
                     }
                   },

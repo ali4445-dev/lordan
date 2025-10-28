@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/summaries.dart';
 import 'package:lordan_v1/providers/user_provider.dart';
+import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/theme.dart';
@@ -141,12 +143,14 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.only(top: 10),
           iconColor: Colors.white,
-          title: Text(
-            summary.role.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          title: Center(
+            child: Text(
+              summary.role.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           leading: Text(
@@ -170,20 +174,41 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                 textAlign: TextAlign.left,
               ),
             ),
-            if (GlobalData.plan == "premium")
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
+            if (GlobalData.user.status == "premium")
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                TextButton.icon(
                   onPressed: () async {
                     await _deleteSummary(summary);
                   },
-                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.redAccent,
+                    size: 20,
+                  ),
                   label: const Text(
                     "Delete",
-                    style: TextStyle(color: Colors.redAccent),
+                    style: TextStyle(color: Colors.redAccent, fontSize: 20),
                   ),
                 ),
-              ),
+                const SizedBox(width: 5),
+                TextButton.icon(
+                  onPressed: () async {
+                    context.push(ChatTextScreen.routeName, extra: {
+                      'roleId': '',
+                      'roleName': '',
+                      'roleDescription': '',
+                      'isPremium': GlobalData.user.status == "premium",
+                    });
+                  },
+                  icon: const Icon(Icons.play_circle_filled_sharp,
+                      color: Color.fromARGB(255, 14, 110, 2), size: 20),
+                  label: const Text(
+                    "Continue",
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 5, 189, 5), fontSize: 20),
+                  ),
+                ),
+              ]),
           ],
         ),
       ),
