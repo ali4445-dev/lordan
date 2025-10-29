@@ -32,7 +32,7 @@ class _LanguageDropdownState extends State<LanguageDropdown> {
     final userProvider = context.read<UserProvider>();
 
     return DropdownButtonFormField<Locale>(
-      initialValue: selectedLocale,
+      value: selectedLocale,
       decoration: InputDecoration(
         labelText: "Select Language",
         border: OutlineInputBorder(
