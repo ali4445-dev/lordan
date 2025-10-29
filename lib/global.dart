@@ -1,4 +1,5 @@
 import 'package:lordan_v1/extensions/role_type.dart';
+import 'package:lordan_v1/models/user_model.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 
 class GlobalData {
@@ -12,7 +13,7 @@ class GlobalData {
   static String? language = 'en';
   static bool isLoading = false;
   static dynamic session; // If you store Supabase Session
-  static dynamic user; // If you store Supabase User
+  static AppUser? user; // If you store Supabase User
   static List<Object> allRoles = [];
   static void setAutoReply(bool autoreply) => autoPlay = autoreply;
   // Setters

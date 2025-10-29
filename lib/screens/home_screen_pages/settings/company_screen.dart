@@ -27,12 +27,14 @@ class _CompanyScreenState extends State<CompanyScreen> {
     {"q": "About Us", "a": ""},
     {"q": "Privacy Policy", "a": privacyText},
     {"q": "Terms of Use", "a": termsOfServiceText},
+    {"q": "Safety and Ethics", "a": safetyEthics},
   ];
 
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(_faqData.length, (_) => ExpansionTileController());
+    _controllers =
+        List.generate(_faqData.length, (_) => ExpansionTileController());
   }
 
   Future<void> _launchUrl(String url) async {
@@ -74,9 +76,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
                 const SizedBox(height: 8.0),
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _faqData.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12.0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12.0),
                     itemBuilder: (context, index) {
                       return GlassCard(
                         radiusBottom: const Radius.circular(24),
@@ -99,7 +103,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
                             dense: false,
                             collapsedIconColor: Colors.white,
                             iconColor: Colors.white,
-                            tilePadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
+                            tilePadding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 16),
                             childrenPadding: const EdgeInsets.only(
                               left: 16,
                               right: 16,
@@ -116,10 +121,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
                             children: [
                               if (index == 0) ...[
                                 SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.58,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.58,
                                   child: SingleChildScrollView(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const Text(
                                           "Lordan is your private AI conversation partner—built to help you think clearly, "
@@ -155,28 +162,40 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                         ),
                                         const SizedBox(height: 14),
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
                                           children: [
                                             TextButton(
-                                              onPressed: () => context.push(PrivacyPolicyScreen.routeName),
+                                              onPressed: () => context.push(
+                                                  PrivacyPolicyScreen
+                                                      .routeName),
                                               child: const Text(
                                                 "Privacy Policy",
-                                                style: TextStyle(color: Colors.white, fontSize: 12),
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12),
                                               ),
                                             ),
                                             TextButton(
-                                              onPressed: () => context.push(TermsOfServiceScreen.routeName),
+                                              onPressed: () => context.push(
+                                                  TermsOfServiceScreen
+                                                      .routeName),
                                               child: const Text(
                                                 "Terms of Use",
-                                                style: TextStyle(color: Colors.white, fontSize: 12),
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12),
                                               ),
                                             ),
                                             Flexible(
                                               child: TextButton(
-                                                onPressed: () => _launchUrl("mailto:info@lordan.io"),
+                                                onPressed: () => _launchUrl(
+                                                    "mailto:info@lordan.io"),
                                                 child: const Text(
                                                   "Contact",
-                                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12),
                                                   textAlign: TextAlign.center,
                                                 ),
                                               ),
@@ -189,7 +208,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                 ),
                               ] else ...[
                                 SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.58,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.58,
                                   child: SingleChildScrollView(
                                     child: Text(
                                       _faqData[index]["a"]!,

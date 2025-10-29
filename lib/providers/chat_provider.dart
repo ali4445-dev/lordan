@@ -51,7 +51,8 @@ class ChatProvider with ChangeNotifier {
 
       // ✅ Prepare to receive assistant response
       final responseId = _uuid.v4();
-      final user_id = GlobalData.user.user_key;
+
+      final user_id = GlobalData.user!.userKey;
 
       final Map<String, dynamic> jsonData = await sendToLordan(content,
           locale: language,

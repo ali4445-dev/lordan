@@ -430,7 +430,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                     message,
                                     mode: "text",
                                     isPremium:
-                                        GlobalData.user.status == "premium",
+                                        GlobalData.user!.status == "premium",
                                     language: selectedLanguageCode!,
                                     role: GlobalData.mode!);
 

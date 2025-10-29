@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lordan_v1/methods/text_format.dart';
 import '../../../models/message.dart';
 import '../../../theme.dart';
 
@@ -18,7 +19,8 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment:
+          message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         if (!message.isUser) ...[
           const SizedBox(width: 8),
@@ -51,8 +53,12 @@ class MessageBubble extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(16),
                 topRight: const Radius.circular(16),
-                bottomLeft: message.isUser ? const Radius.circular(16) : const Radius.circular(4),
-                bottomRight: message.isUser ? const Radius.circular(4) : const Radius.circular(16),
+                bottomLeft: message.isUser
+                    ? const Radius.circular(16)
+                    : const Radius.circular(4),
+                bottomRight: message.isUser
+                    ? const Radius.circular(4)
+                    : const Radius.circular(16),
               ),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.2),
@@ -76,12 +82,8 @@ class MessageBubble extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Message content
-                      Text(
-                        message.content,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: message.isUser ? Colors.white : Colors.white.withValues(alpha: 0.9),
-                        ),
+                      RichText(
+                        text: formatApiText(message.content),
                       ),
                       if (message.isStreaming) ...[
                         const SizedBox(height: 8),
@@ -90,7 +92,8 @@ class MessageBubble extends StatelessWidget {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         ),
                       ],

@@ -41,174 +41,105 @@ class FeatureFlags {
 }
 
 const String privacyText = """
-Privacy Policy
+​Privacy Policy
+​Effective:​​October 3, 2025​
+​Lordan Labs LLC takes your privacy seriously. This explains what we collect, how we use it, and​ how we protect it.​
 
-Effective Date: September 22, 2025
+​1. What We Collect​
+​Account Access:​​ 
+​●​ ​Email or phone number for login​
+​●​ ​Authentication data for subscriptions​
 
-Company: Lordan Labs LLC
+​Conversations:​
+● Text or voice input you share​
+​●​ ​Used only in real-time to generate responses​
+​●​ ​Not stored on our servers after your session ends​
 
-Location: New Jersey, USA
+​Session Memory:​
+● Temporary memory stored locally on your device for conversation continuity​
+​●​ ​Automatically deleted after 24 hours​
+​●​ ​Premium users can manually delete anytime​
 
-Website: https://lordan.io
+​Technical Data:​
+● Device type, app version, error reports (non-identifiable)​
+​●​ ​Used only for security and reliability​
 
-1. Your Privacy Matters
-At Lordan Labs LLC (“we,” “our,” or “us”), we prioritize privacy. Lordan is designed to minimize data collection and give you full control over your experience.
+​2. What We Don't Collect​
+​We do not store or sell your conversations. We do not track you across apps or websites. We do​ not use your conversations to train AI models. We do not keep audio recordings.​
 
-We do not track, sell, or share your personal data. We collect only what’s needed to deliver a smooth, secure service.
-
-2. What We Collect
-On Our Website (Lordan.io):
-We may collect limited non-personal data such as:
-
-Device/browser type
-
-General site usage (page views, time on site)
-
-We do not collect personally identifiable information (PII) unless you directly email us or sign up for updates.
-
-In the Lordan App:
-If you use the app, we may process:
-
-Microphone input (for voice features) — used in real time, not stored
-
-Email or phone number (for login code access)
-
-Session memory (premium only) — temporary and cleared after each session
-
-We do not store conversations, and no audio or personal data is retained on our servers unless explicitly required to process your request.
-
-3. No Ads. No Tracking. No Sharing.
-We do not:
-
-Sell or rent your data
-
-Use tracking ads or analytics from third-party networks
-
-Share your information with anyone outside Lordan Labs
-
-4. Cookies (Minimal Use)
-Our site may use basic cookies only for functionality. You can disable cookies in your browser without losing access to the site.
-
-5. Emails (Optional)
-If you subscribe or contact us:
-
-We may use your email to respond or share occasional updates
-
-You can opt out at any time
-
-We do not share or sell your email address
-
-6. Children’s Privacy
-Lordan is not intended for children under 13. We do not knowingly collect personal data from minors.
-
-7. Your Rights
-Depending on your location, you may have the right to:
-
-Access or delete your data
-
-Withdraw consent or unsubscribe
-
-Request information about our data use
-
-To make a request, contact: privacy@lordan.io
-
-8. Updates
-We may update this Privacy Policy as needed. Material changes will be posted here.
-
-Last updated: September 22, 2025
-
-9. Contact
-Lordan Labs LLC
-
-New Jersey, USA
-
-📧 info@lordan.io
+​3. How We Use Information​
+​To let you log in and manage your subscription. To provide real-time voice or text responses. To​ ​maintain security and prevent abuse. To improve reliability and fix technical issues.​
 """;
 
 const String termsOfServiceText = """
 Terms of Use
+​Effective Date:​​October 18, 2025​
+​By using Lordan, you agree to these Terms of Use.​
 
-Effective Date: September 22, 2025
+​1. Acceptance​
+​These Terms form a legal agreement between you and Lordan Labs LLC. If you don't accept​ ​them, please don't use the app.​
 
-Company: Lordan Labs LLC
+​2. Not Medical or Therapy​
+​Lordan is an educational tool for thinking and communication skills—not therapy, medical​ ​advice, diagnosis, or treatment. It does not provide crisis support.​​If you're experiencing an emergency, contact local emergency services immediately.​​Lordan is not a substitute for professional medical or psychological care.​
 
-Website: https://lordan.io
+​3. Responsible Use​
+​You agree not to misuse, hack, or reverse-engineer the service, share illegal or harmful content ​or violate applicable laws.​​We may suspend or terminate access if you violate these Terms.​
 
-App Platforms: App Store, Google Play, and other authorized platforms
+​4. Privacy & Session Memory​
+​Lordan uses temporary session memory for conversation continuity. This memory is​​automatically deleted after 24 hours and is never shared or used for AI training.​​Premium users can manually delete session memory anytime.​​See our Privacy Policy for full details.​
 
-1. Acceptance of Terms
-By using the Lordan app or visiting lordan.io, you agree to these Terms of Use (“Terms”). If you do not accept them, please do not use the Service.
+​5. Intellectual Property​
+​All content, features, and technology are owned by Lordan Labs LLC. You may not copy,​​redistribute, or reuse without written permission.​
 
-These Terms form a legal agreement between you (“you” or “user”) and Lordan Labs LLC, based in New Jersey, USA (“we,” “our,” or “us”).
+​6. Platform Terms​
+​Your use is also subject to App Store or Google Play terms of service.​
 
-2. No Therapy or Medical Advice
-Lordan is not therapy, diagnosis, or a medical service.
+​7. Limitation of Liability​
+​Lordan is provided "as-is." We are not liable for any damages related to your use of the service,​to the maximum extent allowed by law.​
 
-It is an AI-powered tool for self-reflection, communication practice, and mental clarity—not a substitute for professional help.
+​8. Changes​
+​We may update these Terms and the app's design or features at any time. Continued use​ ​means you accept the changes.​
 
-We do not provide:
+​9. Contact​
+​Questions? Email us at​​info@lordan.io​
+​Lordan Labs LLC​
 
-Medical or psychological advice
+​New Jersey, USA​
+​Last updated: October 18, 2025
+""";
 
-Diagnosis or treatment
+const String safetyEthics = """
+Safety & Ethics​
+​Lordan is a private AI Thinking Companion designed to promote clarity, reflection, and personal​ growth through safe, respectful dialogue.​
 
-Emergency or crisis response
+​Ethical Principles​-​Human Dignity​
+​Every interaction is guided by empathy, respect, and non-judgment.​
 
-If you are in distress, please contact a licensed professional or emergency services.
+​Safety First​
+​Conversations are moderated to prevent or redirect any content involving harm, violence, or​ ​self-harm.​
 
-3. Platform Use
-The Lordan app may be downloaded from:
+​No Explicit Content​
+​Lordan does not generate or engage in pornographic, obscene, or sexually suggestive dialogue.​
 
-Apple App Store
+​No Hate or Manipulation​
+​The system refuses and reframes any discriminatory, hostile, or exploitative topics.​
 
-Google Play Store
+​Privacy and Calm​
+​User data is never used for profiling, advertising, or behavioral manipulation.​
 
-Other approved platforms
+​Constructive Reflection​
+​Even when frustration or venting occurs, Lordan maintains composure and redirects toward​ understanding and growth.​
 
-Your use is subject to these Terms and platform-specific terms (e.g., Apple Media Services, Google Play TOS).
+​Core Safeguards​
+​Real-time moderation filter for all inputs and outputs.​
+​Embedded crisis-support messages available in 11 languages.​
+​Context-aware tone normalization and cultural sensitivity.​
+​Continuous ethical oversight through philosophical and educational frameworks.​
 
-4. Responsible Use
-You agree not to:
+​Result​
+​Every conversation—whether casual, challenging, or intellectual—remains safe, private, and​ ​growth-oriented, aligned with Lordan's purpose:​
 
-Misuse, hack, or reverse-engineer the Service
-
-Share abusive, illegal, or harmful content
-
-Violate local or platform-specific laws
-
-We reserve the right to suspend or terminate your access if misuse occurs.
-
-5. Intellectual Property
-All content, features, and technology in the app and website are owned by Lordan Labs LLC. You may not copy, reuse, or redistribute without written permission.
-
-6. Temporary Session Memory (Premium App Only)
-In the premium version, temporary memory may be used to maintain conversation flow. This:
-
-Exists only during a session
-
-Is cleared immediately after
-
-Is not stored, linked, or shared
-
-This does not apply to the website or free-tier use.
-
-7. Termination
-You may stop using the Service at any time. We may suspend or remove access if you violate these Terms or applicable laws.
-
-8. Limitation of Liability
-We provide the Service “as-is.” To the maximum extent allowed by law, we are not liable for any direct, indirect, or incidental damages related to your use of the Service.
-
-9. Updates
-We may revise these Terms as needed. If updates are significant, we’ll notify you via the app or website. Continued use means you accept the new Terms.
-
-Last updated: September 22, 2025
-
-10. Contact
-Questions? Contact us at:
-
-📧 info@lordan.io
-
-Lordan Labs LLC
-
-New Jersey, USA
+​Clarity. Presence. Progress.​
+​Lordan Labs LLC​
+​New Jersey, USA​
 """;

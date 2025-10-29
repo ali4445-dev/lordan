@@ -382,7 +382,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToNextScreen() async {
-    if (GlobalData.user.status.toString().toUpperCase() != "PREMIUM") {
+    if (GlobalData.user!.status.toString().toUpperCase() != "PREMIUM") {
       context.go(PaywallScreen.routeName);
     } else {
       context.go(HomeScreen.routeName);

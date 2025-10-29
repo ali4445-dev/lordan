@@ -184,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const Icon(Icons.account_circle,
                         size: 100, color: Colors.white),
                     Text(
-                      GlobalData.user.email,
+                      GlobalData.user!.email,
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -240,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (GlobalData.user.status != "premium") ...[
+                          if (GlobalData.user!.status != "premium") ...[
                             const Icon(
                               FontAwesomeIcons.crown,
                               size: 16,
@@ -249,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const SizedBox(width: 8),
                           ],
                           AbsorbPointer(
-                            absorbing: GlobalData.user.status !=
+                            absorbing: GlobalData.user!.status !=
                                 "premium", // disables switch if not premium
                             child: CupertinoSwitch(
                               value: GlobalData.autoPlay,

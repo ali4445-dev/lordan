@@ -27,10 +27,11 @@ class UserStorageService extends ChangeNotifier {
     String? email;
     if (currentUser != null) {
       email = currentUser.email;
-      Box? data = await getUserBox.get(email);
+      final box = await getUserBox;
+      final data = box.get(email);
 
       if (data != null) {
-        debugPrint("User Existing Session Restrored as :\n${data.toMap()}");
+        debugPrint("User Existing Session Restrored as :\n${data}");
         loadUserData();
         return;
       }

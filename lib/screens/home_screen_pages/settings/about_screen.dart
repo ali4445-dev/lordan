@@ -112,29 +112,35 @@ class AboutScreen extends StatelessWidget {
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: TextButton(
-                                    onPressed: () => context.push(PrivacyPolicyScreen.routeName),
+                                    onPressed: () => context
+                                        .push(PrivacyPolicyScreen.routeName),
                                     child: const Text(
                                       "Privacy Policy",
-                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
                                     ),
                                   ),
                                 ),
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: TextButton(
-                                    onPressed: () => context.push(TermsOfServiceScreen.routeName),
+                                    onPressed: () => context
+                                        .push(TermsOfServiceScreen.routeName),
                                     child: const Text(
                                       "Terms of Use",
-                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: TextButton(
-                                    onPressed: () => _launchUrl("https://info@lordan.io"),
+                                    onPressed: () =>
+                                        _launchUrl("https://info@lordan.io"),
                                     child: const Text(
                                       "Contact",
-                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),

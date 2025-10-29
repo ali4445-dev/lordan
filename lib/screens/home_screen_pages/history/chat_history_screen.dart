@@ -174,7 +174,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                 textAlign: TextAlign.left,
               ),
             ),
-            if (GlobalData.user.status == "premium")
+            if (GlobalData.user!.status == "premium")
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 TextButton.icon(
                   onPressed: () async {
@@ -197,7 +197,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                       'roleId': '',
                       'roleName': '',
                       'roleDescription': '',
-                      'isPremium': GlobalData.user.status == "premium",
+                      'isPremium': GlobalData.user!.status == "premium",
                     });
                   },
                   icon: const Icon(Icons.play_circle_filled_sharp,

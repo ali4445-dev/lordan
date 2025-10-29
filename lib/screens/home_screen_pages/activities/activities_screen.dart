@@ -278,7 +278,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           _buildRolesGrid(theme),
 
           // ── Premium Banner
-          if (GlobalData.user.status != 'premium') _buildPremiumBanner(theme),
+          if (GlobalData.user!.status != 'premium') _buildPremiumBanner(theme),
 
           // ── Featured Roles
           if (_featuredRoles?.isNotEmpty ?? false) _buildFeaturedRoles(theme),
@@ -314,7 +314,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 final role = _featuredRoles![index];
                 return _RoleCard(
                   role: role,
-                  isPremiumUser: GlobalData.user.status == 'premium',
+                  isPremiumUser: GlobalData.user!.status == 'premium',
                   onTap: () => _handleRoleTap(role),
                 );
               },
@@ -391,7 +391,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               ),
               padding: EdgeInsets.zero,
             ),
-            onPressed: () => GlobalData.user.status != "premium"
+            onPressed: () => GlobalData.user!.status != "premium"
                 ? context.push('/paywall')
                 : () {
                     context.push(ChatTextScreen.routeName, extra: {
@@ -464,7 +464,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               final role = _allRoles![index];
               return _RoleCard(
                 role: role,
-                isPremiumUser: GlobalData.user.status == 'premium',
+                isPremiumUser: GlobalData.user!.status == 'premium',
                 onTap: () {
                   GlobalData.mode = role.name;
                   _handleRoleTap(role);
@@ -478,7 +478,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   void _handleRoleTap(Role role) {
-    if (role.isPremium && GlobalData.user.status != 'premium') {
+    if (role.isPremium && GlobalData.user!.status != 'premium') {
       context.push(PaywallScreen.routeName);
 
       return;
@@ -494,7 +494,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         'roleId': role.id,
         'roleName': role.name,
         'roleDescription': role.description,
-        'isPremium': GlobalData.user.status == "premium",
+        'isPremium': GlobalData.user!.status == "premium",
       });
     }
   }

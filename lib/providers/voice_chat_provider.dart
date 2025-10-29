@@ -235,7 +235,7 @@ class VoiceChatProvider with ChangeNotifier {
     print(_transcript);
 
     await dynamicVoice();
-    final userKey = GlobalData.user.user_key;
+    final userKey = GlobalData.user!.userKey;
 
     // TODO: Replace this with actual API call
     final aiResponse = await sendToLordan(_transcript,

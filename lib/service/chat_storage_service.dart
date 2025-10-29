@@ -50,10 +50,10 @@ class ChatStorageService {
 
     final updatedSummaries =
         List<Map<String, dynamic>>.from(userData['summaries'] ?? []);
-    if (GlobalData.user.status == "premium" && updatedSummaries.length == 100) {
+    if (GlobalData.user!.status == "premium" && updatedSummaries.length == 100) {
       updatedSummaries.removeAt(0);
-    } else if ((GlobalData.user.status == "standard" ||
-            GlobalData.user.status == "trial") &&
+    } else if ((GlobalData.user!.status == "standard" ||
+            GlobalData.user!.status == "trial") &&
         updatedSummaries.length == 10) {
       updatedSummaries.removeAt(0);
     }

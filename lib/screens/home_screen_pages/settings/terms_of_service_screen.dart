@@ -80,88 +80,48 @@ class TermsOfServiceScreen extends StatelessWidget {
 
 const String _privacyText = """
 Terms of Use
+​Effective Date:​​October 18, 2025​
+​By using Lordan, you agree to these Terms of Use.​
 
-Effective Date: September 22, 2025
+​1. Acceptance​
+​These Terms form a legal agreement between you and Lordan Labs LLC. If you don't accept​
+​them, please don't use the app.​
 
-Company: Lordan Labs LLC
+​2. Not Medical or Therapy​
+​Lordan is an educational tool for thinking and communication skills—not therapy, medical​
+​advice, diagnosis, or treatment. It does not provide crisis support.​
+​If you're experiencing an emergency, contact local emergency services immediately.​
+​Lordan is not a substitute for professional medical or psychological care.​
 
-Website: https://lordan.io
+​3. Responsible Use​
+​You agree not to misuse, hack, or reverse-engineer the service, share illegal or harmful content
+​or violate applicable laws.​​We may suspend or terminate access if you violate these Terms.​
 
-App Platforms: App Store, Google Play, and other authorized platforms
+​4. Privacy & Session Memory​
+​Lordan uses temporary session memory for conversation continuity. This memory is​
+​automatically deleted after 24 hours and is never shared or used for AI training.​
+​Premium users can manually delete session memory anytime.​
+​See our Privacy Policy for full details.​
 
-1. Acceptance of Terms
-By using the Lordan app or visiting lordan.io, you agree to these Terms of Use (“Terms”). If you do not accept them, please do not use the Service.
+​5. Intellectual Property​
+​All content, features, and technology are owned by Lordan Labs LLC. You may not copy,​
+​redistribute, or reuse without written permission.​
 
-These Terms form a legal agreement between you (“you” or “user”) and Lordan Labs LLC, based in New Jersey, USA (“we,” “our,” or “us”).
+​6. Platform Terms​
+​Your use is also subject to App Store or Google Play terms of service.​
 
-2. No Therapy or Medical Advice
-Lordan is not therapy, diagnosis, or a medical service.
+​7. Limitation of Liability​
+​Lordan is provided "as-is." We are not liable for any damages related to your use of the service,​
+​to the maximum extent allowed by law.​
 
-It is an AI-powered tool for self-reflection, communication practice, and mental clarity—not a substitute for professional help.
+​8. Changes​
+​We may update these Terms and the app's design or features at any time. Continued use​
+​means you accept the changes.​
 
-We do not provide:
+​9. Contact​
+​Questions? Email us at​​info@lordan.io​
+​Lordan Labs LLC​
 
-Medical or psychological advice
-
-Diagnosis or treatment
-
-Emergency or crisis response
-
-If you are in distress, please contact a licensed professional or emergency services.
-
-3. Platform Use
-The Lordan app may be downloaded from:
-
-Apple App Store
-
-Google Play Store
-
-Other approved platforms
-
-Your use is subject to these Terms and platform-specific terms (e.g., Apple Media Services, Google Play TOS).
-
-4. Responsible Use
-You agree not to:
-
-Misuse, hack, or reverse-engineer the Service
-
-Share abusive, illegal, or harmful content
-
-Violate local or platform-specific laws
-
-We reserve the right to suspend or terminate your access if misuse occurs.
-
-5. Intellectual Property
-All content, features, and technology in the app and website are owned by Lordan Labs LLC. You may not copy, reuse, or redistribute without written permission.
-
-6. Temporary Session Memory (Premium App Only)
-In the premium version, temporary memory may be used to maintain conversation flow. This:
-
-Exists only during a session
-
-Is cleared immediately after
-
-Is not stored, linked, or shared
-
-This does not apply to the website or free-tier use.
-
-7. Termination
-You may stop using the Service at any time. We may suspend or remove access if you violate these Terms or applicable laws.
-
-8. Limitation of Liability
-We provide the Service “as-is.” To the maximum extent allowed by law, we are not liable for any direct, indirect, or incidental damages related to your use of the Service.
-
-9. Updates
-We may revise these Terms as needed. If updates are significant, we’ll notify you via the app or website. Continued use means you accept the new Terms.
-
-Last updated: September 22, 2025
-
-10. Contact
-Questions? Contact us at:
-
-📧 info@lordan.io
-
-Lordan Labs LLC
-
-New Jersey, USA
+​New Jersey, USA​
+​Last updated: October 18, 2025
 """;

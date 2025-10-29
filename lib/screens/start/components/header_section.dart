@@ -4,7 +4,11 @@ import '../../../theme.dart';
 
 /// COMPONENT: Header Section
 class HeaderSection extends StatelessWidget {
-  const HeaderSection({super.key, required this.title, this.subtitle = '', required this.logoVisible});
+  const HeaderSection(
+      {super.key,
+      required this.title,
+      this.subtitle = '',
+      required this.logoVisible});
 
   final String title;
   final String subtitle;
@@ -53,11 +57,12 @@ class HeaderSection extends StatelessWidget {
             textAlign: TextAlign.center,
             style: theme.textTheme.labelMedium?.copyWith(
               fontSize: 16,
-              color: isDark ? AppColors.textSecondaryDark : Colors.white.withValues(alpha: 0.7),
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : Colors.white.withValues(alpha: 0.7),
               height: 1.3,
             ),
           ),
-
 
         // if (logoVisible) ...[
         //   Image.asset(

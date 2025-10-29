@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:lordan_v1/models/products.dart';
 import 'package:lordan_v1/providers/subscribtion_provider.dart';
+import 'package:lordan_v1/screens/paywall/components/features.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 
@@ -17,6 +20,73 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   bool _isYearlySelected = false;
+  String getPlanTitle(String id) {
+    if (id.contains('premium') && id.contains('monthly'))
+      return 'Premium Monthly';
+    if (id.contains('premium') && id.contains('yearly'))
+      return 'Premium Yearly';
+    if (id.contains('standard') && id.contains('monthly'))
+      return 'Standard Monthly';
+    if (id.contains('standard') && id.contains('yearly'))
+      return 'Standard Yearly';
+    return id; // fallback
+  }
+
+  String getPlanDescription(String id) {
+    if (id.contains('premium') && id.contains('monthly'))
+      return 'Full premium access for 1 month';
+    if (id.contains('premium') && id.contains('yearly'))
+      return 'Full premium access for 1 Year';
+    if (id.contains('standard') && id.contains('monthly'))
+      return 'Access all features for 1 month';
+    if (id.contains('standard') && id.contains('yearly'))
+      return 'Access all features for 1 Year';
+    return '';
+  }
+
+  List<String> getPlanFeatures(String id) {
+    if (id.contains('premium')) {
+      return [
+        "Up to 100 summaries",
+        "Delete summary on tap",
+        "Continue contextual chat from selected summary",
+        "Free speak questions (up to 6)",
+        "Switch auto speak",
+        "All modes"
+      ];
+    }
+    if (id.contains('standard')) {
+      return ["Up to 10 summaries", "Limited modes", "Chat on tap"];
+    }
+    return [];
+  }
+
+  final List<Product> mockProducts = [
+    Product(
+      id: 'standard-monthly',
+      title: 'Standard Monthly',
+      description: 'Access all features for 1 month',
+      price: '\$4.99',
+    ),
+    Product(
+      id: 'premium-monthly',
+      title: 'Premium Monthly',
+      description: 'Full premium access for 1 month',
+      price: '\$9.99',
+    ),
+    Product(
+      id: 'standard-yearly',
+      title: 'Standard Yearly',
+      description: 'Access all features for 12 months',
+      price: '\$49.99',
+    ),
+    Product(
+      id: 'premium-yearly',
+      title: 'Premium Yearly',
+      description: 'Full premium access for 12 months',
+      price: '\$99.99',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +97,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
     // Check if products fetched
     final products = subService.products;
     final hasProducts = products.isNotEmpty;
+
+    // final products = mockProducts;
+    // final hasProducts = mockProducts.isNotEmpty;
 
     return Scaffold(
       body: Stack(
@@ -55,7 +128,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         )
                       ],
                     ),
-                    const SizedBox(height: 120),
+                    products.isEmpty
+                        ? const SizedBox(height: 120)
+                        : const SizedBox(height: 30),
 
                     const Text(
                       'Upgrade to Premium',
@@ -65,7 +140,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    products.isEmpty
+                        ? const SizedBox(height: 60)
+                        : const SizedBox(height: 30),
 
                     // Plan switcher
                     Container(
@@ -101,63 +178,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    products.isEmpty
+                        ? const SizedBox(height: 50)
+                        : const SizedBox(height: 10),
 
                     // Dynamic products
-                    if (hasProducts)
-                      Column(
-                        children: products.map((product) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withAlpha(20),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.star,
-                                      color: Color(0xFFFFD700), size: 28),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          product.title,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          product.description,
-                                          style: TextStyle(
-                                            color: Colors.white.withAlpha(200),
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    product.price,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      )
-                    else
+
+                    if (!hasProducts)
                       // No products
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -182,89 +209,57 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       ),
                     const SizedBox(height: 24),
                     // CTA Button
-                    Container(
-                      width: double.infinity,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(26),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFFD700),
-                            Colors.amber,
-                            Colors.white,
-                          ],
-                        ),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: hasProducts
-                            ? () async {
-                                final selectedProduct = _isYearlySelected
-                                    ? products.firstWhere(
-                                        (p) =>
-                                            p.id.contains('yearly') ||
-                                            p.id == 'standard-yearly',
-                                        orElse: () => products.first)
-                                    : products.firstWhere(
-                                        (p) =>
-                                            p.id.contains('monthly') ||
-                                            p.id == 'standard-monthly',
-                                        orElse: () => products.first);
+                    if (hasProducts)
+                      Column(
+                        children: products
+                            .where((p) => _isYearlySelected
+                                ? p.id.contains('yearly')
+                                : p.id.contains('monthly'))
+                            .map((product) => Card(
+                                  color: Colors.white.withAlpha(20),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6),
+                                  child: ListTile(
+                                    title: Text(
+                                      getPlanTitle(product.id),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 22),
+                                    ),
+                                    subtitle: Column(
+                                      children: [
+                                        buildFeatureList(
+                                            getPlanFeatures(product.id))
+                                      ],
+                                    ),
+                                    trailing: Text(
+                                      product.price,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    onTap: () async {
+                                      try {
+                                        await subService.buy(product);
 
-                                try {
-                                  await subService.buy(selectedProduct);
-                                  // subService
-                                  //     .simulatePurchase(selectedProduct.title);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '⏳ Processing purchase for ${selectedProduct.title}...'),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('❌ Error: $e'),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                }
-                              }
-                            : () {
-                                try {
-                                  // await subService.buy(selectedProduct);
-                                  subService.simulatePurchase("premium");
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '⏳ Processing purchase for premium...'),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('❌ Error: $e'),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(26),
-                          ),
-                        ),
-                        child: const Text(
-                          'Upgrade to Premium',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              '⏳ Processing purchase for ${product.title}...'),
+                                        ));
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text('❌ Error: $e'),
+                                          backgroundColor: Colors.redAccent,
+                                        ));
+                                      }
+                                    },
+                                  ),
+                                ))
+                            .toList(),
                       ),
-                    ),
 
                     const SizedBox(height: 24),
 

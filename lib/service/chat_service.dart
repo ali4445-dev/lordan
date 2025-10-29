@@ -52,11 +52,11 @@ Future<Map<String, dynamic>> sendToLordan(String message,
     }
     print(jsonBody['reply']);
     jsonBody['audio_b64'];
-    final formattedText = formatApiText(jsonBody['reply']);
+    // final formattedText = formatApiText(jsonBody['reply']);
 
     // ✅ Always return structured map (easier to handle TTS + text)
     return {
-      'reply': formattedText,
+      'reply': jsonBody['reply'],
       'audio_b64': jsonBody['audio_b64'] ?? '',
       // will be null if mode=text
     };

@@ -67,8 +67,12 @@ class SubscriptionService with ChangeNotifier {
   }
 
   Future<void> buy(ProductDetails product) async {
-    final purchaseParam = PurchaseParam(productDetails: product);
-    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    try {
+      final purchaseParam = PurchaseParam(productDetails: product);
+      await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
+      print("Cannot Proceed $e");
+    }
   }
 
   void disposeService() {

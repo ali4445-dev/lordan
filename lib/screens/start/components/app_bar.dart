@@ -64,7 +64,7 @@ Widget buildTopBar(ThemeData theme,
             ),
           ),
           child: Text(
-            GlobalData.user.status.toString().toUpperCase(),
+            GlobalData.user!.status.toString().toUpperCase(),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: isPremiumUser ? Colors.white : Colors.white70,
