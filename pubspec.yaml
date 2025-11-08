@@ -42,7 +42,7 @@ dependencies:
   flutter_stripe: ^11.5.0
   flutter_tts: 4.0.2
   in_app_purchase: ^3.2.3
-  in_app_purchase_android: ^0.4.0+6
+  in_app_purchase_android: ^0.4.0+3
   
 
 
