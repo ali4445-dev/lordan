@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lordan_v1/global.dart';
+import 'package:lordan_v1/screens/start/components/subscribtion_bottom_sheet.dart';
 
-Widget buildTopBar(ThemeData theme,
+Widget buildTopBar(ThemeData theme, BuildContext context,
     {required bool isPremiumUser, bool isDefaultPadding = false}) {
   return Container(
     margin: isDefaultPadding ? null : const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -34,7 +35,7 @@ Widget buildTopBar(ThemeData theme,
         // App Logo
         Image.asset(
           'assets/brand_logos/logo_text.png',
-          height: 40,
+          height: 35,
           fit: BoxFit.contain,
         ),
 
@@ -63,12 +64,32 @@ Widget buildTopBar(ThemeData theme,
               width: 1.2,
             ),
           ),
-          child: Text(
-            GlobalData.user!.status.toString().toUpperCase(),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isPremiumUser ? Colors.white : Colors.white70,
-              letterSpacing: 0.3,
+          child: GestureDetector(
+            onTap: () {
+              SubscriptionBottomSheet.show(context);
+            },
+            child: Text(
+              GlobalData.user!.status
+                      .toString()
+                      .toUpperCase()
+                      .contains("PREMIUM")
+                  ? "Premium"
+                  : GlobalData.user!.status
+                          .toString()
+                          .toUpperCase()
+                          .contains("STANDARD")
+                      ? "Standard"
+                      : GlobalData.user!.status
+                              .toString()
+                              .toUpperCase()
+                              .contains("TRIAL")
+                          ? "Trial"
+                          : "Unsubscribed",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isPremiumUser ? Colors.white : Colors.white70,
+                  letterSpacing: 0.3,
+                  height: 0.8),
             ),
           ),
         ),

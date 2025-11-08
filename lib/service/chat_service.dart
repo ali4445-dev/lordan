@@ -25,33 +25,49 @@ Future<Map<String, dynamic>> sendToLordan(String message,
       'Authorization': 'Bearer $supabaseAnonKey',
       'Content-Type': 'application/json',
     },
-    body: GlobalData.messageCount != 12
-        ? jsonEncode({
-            'message': message,
-            'plan': plan,
-            'mode': mode,
-            'locale': locale,
-            'role': role,
-            "userKey": userKey
-          })
-        : jsonEncode({"userKey": userKey, "generateSummary": true}),
+    // For generating summaries later same code as below
+    // body: GlobalData.messageCount != 12
+    //     ? jsonEncode({
+    //         'message': message,
+    //         'plan': plan,
+    //         'mode': mode,
+    //         'locale': locale,
+    //         'role': role,
+    //         "userKey": userKey
+    //       })
+    //     : jsonEncode({"userKey": userKey, "generateSummary": true}),
+    body: jsonEncode({
+      'message': message,
+      'plan': plan,
+      'mode': mode,
+      'locale': locale,
+      'role': role,
+      "userKey": userKey,
+      "x-tts-quality":
+          (GlobalData.user!.status == "premium" && GlobalData.hd_quality)
+              ? "hd"
+              : "standard",
+      "hybrid": GlobalData.autoPlay,
+    }),
   );
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> jsonBody = jsonDecode(response.body);
-    if (GlobalData.messageCount! < 12) {
-      GlobalData.messageCount = GlobalData.messageCount! + 1;
-    } else {
-      print("Reached Summary Stage");
+    print(mode);
+    // if (GlobalData.messageCount! < 12) {
+    //   GlobalData.messageCount = GlobalData.messageCount! + 1;
+    // } else {
+    //   print("Reached Summary Stage");
 
-      return {
-        'summary': jsonBody['summary'] ?? '',
-        'mode': jsonBody['mode'] ?? ''
-        // will be null if mode=text
-      };
-    }
+    //   return {
+    //     'summary': jsonBody['summary'] ?? '',
+    //     'mode': jsonBody['mode'] ?? ''
+    //     // will be null if mode=text
+    //   };
+    // }
     print(jsonBody['reply']);
-    jsonBody['audio_b64'];
+    print(response.statusCode);
+    print(jsonBody['audio_b64']);
     // final formattedText = formatApiText(jsonBody['reply']);
 
     // ✅ Always return structured map (easier to handle TTS + text)

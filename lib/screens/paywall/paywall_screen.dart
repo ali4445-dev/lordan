@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/products.dart';
 import 'package:lordan_v1/providers/subscribtion_provider.dart';
 import 'package:lordan_v1/screens/paywall/components/features.dart';
+import 'package:lordan_v1/screens/paywall/components/plan_card.dart';
+import 'package:lordan_v1/screens/paywall/plans_comparison.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 
@@ -20,73 +23,86 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   bool _isYearlySelected = false;
-  String getPlanTitle(String id) {
-    if (id.contains('premium') && id.contains('monthly'))
-      return 'Premium Monthly';
-    if (id.contains('premium') && id.contains('yearly'))
-      return 'Premium Yearly';
-    if (id.contains('standard') && id.contains('monthly'))
-      return 'Standard Monthly';
-    if (id.contains('standard') && id.contains('yearly'))
-      return 'Standard Yearly';
-    return id; // fallback
+  String getPlanTitle(int id) {
+    if (id == 0) return 'Standard Monthly';
+    if (id == 1) return 'Premium Monthly';
+    if (id == 2) return 'Standard Yearly';
+    if (id == 3) return 'Premium Yearly';
+
+    return id.toString(); // fallback
   }
 
-  String getPlanDescription(String id) {
-    if (id.contains('premium') && id.contains('monthly'))
-      return 'Full premium access for 1 month';
-    if (id.contains('premium') && id.contains('yearly'))
-      return 'Full premium access for 1 Year';
-    if (id.contains('standard') && id.contains('monthly'))
-      return 'Access all features for 1 month';
-    if (id.contains('standard') && id.contains('yearly'))
-      return 'Access all features for 1 Year';
+  String getPlanDescription(int id) {
+    if (id == 1 || id == 3) {
+      return 'Think deeply. Speak clearly. Communicate with confidence.h';
+    }
+    if (id == 0 || id == 2) return 'For focused daily use';
+
     return '';
   }
 
-  List<String> getPlanFeatures(String id) {
-    if (id.contains('premium')) {
+  List<String> getPlanFeatures(int index) {
+    if (index == 1 || index == 3) {
       return [
-        "Up to 100 summaries",
-        "Delete summary on tap",
-        "Continue contextual chat from selected summary",
-        "Free speak questions (up to 6)",
-        "Switch auto speak",
-        "All modes"
+        "Flow Mode — hands-free conversation up to 12 exchanges",
+        "3× longer sessions for deeper thinking and reflection",
+        "HD voice with natural tone and adaptive pacing",
+        "Advanced reasoning across all topics and languages",
+        "Language fluency and pronunciation practice",
+        "Priority speed and early access to new features",
+        "Private and encrypted -  nothing stored on servers",
       ];
     }
-    if (id.contains('standard')) {
-      return ["Up to 10 summaries", "Limited modes", "Chat on tap"];
+    if (index == 0 || index == 2) {
+      return [
+        "Voice or text conversations in 11 languages",
+        "Short, concise replies for clarity and insight",
+        "Structured reasoning and reflection",
+        "Private, encrypted sessions",
+        "Up to 10 daily conversations"
+      ];
     }
     return [];
   }
 
-  final List<Product> mockProducts = [
-    Product(
-      id: 'standard-monthly',
-      title: 'Standard Monthly',
-      description: 'Access all features for 1 month',
-      price: '\$4.99',
-    ),
-    Product(
-      id: 'premium-monthly',
-      title: 'Premium Monthly',
-      description: 'Full premium access for 1 month',
-      price: '\$9.99',
-    ),
-    Product(
-      id: 'standard-yearly',
-      title: 'Standard Yearly',
-      description: 'Access all features for 12 months',
-      price: '\$49.99',
-    ),
-    Product(
-      id: 'premium-yearly',
-      title: 'Premium Yearly',
-      description: 'Full premium access for 12 months',
-      price: '\$99.99',
-    ),
-  ];
+  // final List<Product> mockProducts = [
+  //   Product(
+  //     id: 'standard-monthly',
+  //     title: 'Standard Monthly',
+  //     description: 'Access all features for 1 month',
+  //     price: '\$4.99',
+  //   ),
+  //   Product(
+  //     id: 'premium-monthly',
+  //     title: 'Premium Monthly',
+  //     description: 'Full premium access for 1 month',
+  //     price: '\$9.99',
+  //   ),
+  //   Product(
+  //     id: 'standard-yearly',
+  //     title: 'Standard Yearly',
+  //     description: 'Access all features for 12 months',
+  //     price: '\$49.99',
+  //   ),
+  //   Product(
+  //     id: 'premium-yearly',
+  //     title: 'Premium Yearly',
+  //     description: 'Full premium access for 12 months',
+  //     price: '\$99.99',
+  //   ),
+  // ];
+
+  @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+
+  // }
+  void initState() {
+    // TODO: implement initState
+    // super.initState();
+    // SubscriptionService().init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,14 +181,42 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             ),
                           ),
                           Expanded(
-                            child: _PlanWrapper(
-                              isSelected: _isYearlySelected,
-                              child: _PlanButton(
-                                title: 'Yearly',
-                                isSelected: _isYearlySelected,
-                                onTap: () =>
-                                    setState(() => _isYearlySelected = true),
-                              ),
+                            child: Stack(
+                              fit: StackFit.passthrough,
+                              clipBehavior: Clip.none,
+                              children: [
+                                _PlanWrapper(
+                                  isSelected: _isYearlySelected,
+                                  child: _PlanButton(
+                                    title: 'Yearly',
+                                    isSelected: _isYearlySelected,
+                                    onTap: () => setState(
+                                        () => _isYearlySelected = true),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -8,
+                                  right: 12,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFD700),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Text(
+                                      'Save 16%',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -211,57 +255,164 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     // CTA Button
                     if (hasProducts)
                       Column(
-                        children: products
-                            .where((p) => _isYearlySelected
-                                ? p.id.contains('yearly')
-                                : p.id.contains('monthly'))
-                            .map((product) => Card(
-                                  color: Colors.white.withAlpha(20),
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 6),
-                                  child: ListTile(
-                                    title: Text(
-                                      getPlanTitle(product.id),
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 22),
-                                    ),
-                                    subtitle: Column(
-                                      children: [
-                                        buildFeatureList(
-                                            getPlanFeatures(product.id))
-                                      ],
-                                    ),
-                                    trailing: Text(
-                                      product.price,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    onTap: () async {
-                                      try {
-                                        await subService.buy(product);
+                        children: products.asMap().entries.where((entry) {
+                          final index = entry.key;
+                          print("Index is $index");
+                          print(entry.value.price);
+                          if (_isYearlySelected) {
+                            return index == 2 || index == 3; // 2nd and 4th
+                          } else {
+                            return index == 0 || index == 1; // 1st and 3rd
+                          }
+                        }).map((entry) {
+                          final product = entry.value;
+                          final index = entry.key;
+                          print("Index is $index");
+                          print("Price is ${product.price}");
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            child: PlanCard(
+                              buttonText: product.price,
+                              features: getPlanFeatures(index),
+                              title: getPlanTitle(index),
+                              onPressed: () async {
+                                try {
+                                  GlobalData.planInProgresss =
+                                      getPlanTitle(index);
 
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text(
-                                              '⏳ Processing purchase for ${product.title}...'),
-                                        ));
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text('❌ Error: $e'),
-                                          backgroundColor: Colors.redAccent,
-                                        ));
-                                      }
-                                    },
-                                  ),
-                                ))
-                            .toList(),
+                                  await subService.buy(product);
+                                  // ScaffoldMessenger.of(context).showSnackBar(
+                                  //   SnackBar(
+                                  //     content: Text(
+                                  //       '⏳ Processing purchase for ${product.title}...',
+                                  //     ),
+                                  //   ),
+                                  // );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('❌ Error: $e'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              },
+                              subtitle: getPlanDescription(index),
+
+                              // elevation: 1,
+                              // // color: const Color.fromARGB(255, 20, 38, 95),
+                              // color: (index == 1 || index == 3)
+                              //     ? const Color.fromARGB(255, 20, 35, 39)
+                              //     : const Color.fromARGB(255, 13, 40, 70),
+                              // margin: const EdgeInsets.symmetric(vertical: 10),
+                              // child: ListTile(
+                              //   title: Center(
+                              //     child: Text(
+                              //       // product.id,
+                              //       "${getPlanTitle(index)}\n${getPlanDescription(index)}",
+                              //       style: TextStyle(
+                              //         color: (index == 1 || index == 3)
+                              //             ? Colors.green
+                              //             : Colors.orangeAccent,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontSize: 22,
+                              //       ),
+                              //     ),
+                              //   ),
+                              //   subtitle: Center(
+                              //     child: Column(
+                              //       children: [
+                              //         buildFeatureList(getPlanFeatures(index)),
+                              //         Container(
+                              //           padding: const EdgeInsets.only(
+                              //               left: 4, right: 4),
+                              //           decoration: BoxDecoration(
+                              //               color: (index == 1 || index == 3)
+                              //                   ? Colors.green
+                              //                   : Colors.orangeAccent,
+                              //               borderRadius: const BorderRadius.all(
+                              //                   Radius.circular(5))),
+                              //           child: Text(product.price,
+                              //               style: const TextStyle(
+                              //                 color: Colors.white,
+                              //                 fontWeight: FontWeight.w600,
+                              //               )),
+                              //         )
+                              //       ],
+                              //     ),
+                              //   ),
+                              //   // trailing: Text(
+                              //   //   product.price,
+                              //   //   style: const TextStyle(
+                              //   //     color: Colors.white,
+                              //   //     fontWeight: FontWeight.w600,
+                              //   //   ),
+                              //   // ),
+                              //   onTap: () async {
+                              //     try {
+                              //       GlobalData.planInProgresss =
+                              //           getPlanTitle(index);
+                              //       await subService.buy(product);
+
+                              //       ScaffoldMessenger.of(context).showSnackBar(
+                              //         SnackBar(
+                              //           content: Text(
+                              //             '⏳ Processing purchase for ${product.title}...',
+                              //           ),
+                              //         ),
+                              //       );
+                              //     } catch (e) {
+                              //       ScaffoldMessenger.of(context).showSnackBar(
+                              //         SnackBar(
+                              //           content: Text('❌ Error: $e'),
+                              //           backgroundColor: Colors.redAccent,
+                              //         ),
+                              //       );
+                              //     }
+                              //   },
+                              // ),
+                            ),
+                          );
+                        }).toList(),
                       ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 5),
+                    SizedBox(
+                      width: 300,
+                      height: 50,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: TextButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ComparisonScreen(),
+                              )),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26),
+                            ),
+                          ),
+                          child: const Text(
+                            'Why to upgrade?',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(221, 28, 31, 24),
+                                decorationStyle: TextDecorationStyle.double),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ListTile(
+                    //   title: Text(products.first.title),
+                    //   subtitle: Text(products.first.description),
+                    // ),
 
                     Text(
                       'Secure payments • Cancel anytime • Privacy-first',

@@ -266,12 +266,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         children: [
           // ── Top Bar
           const SizedBox(height: 10),
-          buildTopBar(theme, isPremiumUser: false),
+          buildTopBar(theme, context, isPremiumUser: false),
 
           // ── Search Field
           SearchField(
             searchController: _searchController,
-            hintText: 'Search for Role',
+            hintText: 'Search for Mode',
           ),
 
           // ── All Roles Grid
@@ -298,15 +298,17 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               const Icon(Icons.local_fire_department, color: Colors.orange),
               const SizedBox(width: 8),
               Text(
-                'Featured Roles',
+                'Featured Modes',
                 style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: const Color.fromARGB(255, 241, 152, 50)),
               ),
             ],
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 130,
+            height: 90,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _featuredRoles?.length ?? 0,

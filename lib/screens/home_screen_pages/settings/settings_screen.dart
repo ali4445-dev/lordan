@@ -141,6 +141,7 @@ import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/screens/start/language_selection_screen.dart';
 import 'package:lordan_v1/screens/start/welcome_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../utils/components/gradient_backdrop.dart';
@@ -157,7 +158,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkMode = false;
+  final bool _isDarkMode = false;
   bool _autoPlayReplies = false;
 
   @override
@@ -176,13 +177,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 const SizedBox(height: 10),
-                buildTopBar(theme,
+                buildTopBar(theme, context,
                     isPremiumUser: userProvider.isPremium,
                     isDefaultPadding: true),
+                const SizedBox(height: 10),
                 Column(
                   children: [
-                    const Icon(Icons.account_circle,
-                        size: 100, color: Colors.white),
+                    CircleAvatar(
+                      radius:
+                          40, // same size as old icon (Icon size 100 → radius 50)
+                      backgroundColor: Colors.white.withOpacity(0.15),
+                      child: Text(
+                        GlobalData.user!.email.isNotEmpty
+                            ? GlobalData.user!.email[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       GlobalData.user!.email,
                       style: const TextStyle(
@@ -228,15 +244,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Auto-play
                 _buildSection(
                   children: [
-                    ListTile(
+                    SettingTile(
                       leading: const FaIcon(
                         FontAwesomeIcons.solidCirclePlay,
                         color: Colors.white,
                       ),
-                      title: const Text(
-                        'Auto-play voice replies',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      title: 'Voice & Transcript',
+                      sub_title: 'Read responses as you listen',
+                      titleStyle: theme.textTheme.labelLarge
+                          ?.copyWith(color: Colors.white),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -278,6 +294,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     )
                   ],
                 ),
+
+                const SizedBox(height: 14.0),
+
+                _buildSection(
+                  children: [
+                    SettingTile(
+                      leading: const FaIcon(
+                        FontAwesomeIcons.solidCirclePlay,
+                        color: Colors.white,
+                      ),
+                      title: 'HD Voice',
+                      sub_title: 'May reduce response speed',
+                      titleStyle: theme.textTheme.labelLarge
+                          ?.copyWith(color: Colors.white),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (GlobalData.user!.status != "premium") ...[
+                            const Icon(
+                              FontAwesomeIcons.crown,
+                              size: 16,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          AbsorbPointer(
+                            absorbing: GlobalData.user!.status !=
+                                "premium", // disables switch if not premium
+                            child: CupertinoSwitch(
+                              value: GlobalData.hd_quality,
+                              onChanged: (value) {
+                                setState(() => _autoPlayReplies = value);
+                                GlobalData.setHdQuality(value);
+                              },
+                              activeTrackColor: Colors.blueAccent,
+                              inactiveTrackColor:
+                                  Colors.white.withValues(alpha: 0.25),
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        if (GlobalData.plan != "premium") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Upgrade to premium to unlock this feature!'),
+                            ),
+                          );
+                          context.push(PaywallScreen.routeName);
+                        }
+                      },
+                    )
+                  ],
+                ),
                 const SizedBox(height: 14.0),
                 // Privacy, Terms, FAQ
                 _buildSection(
@@ -291,20 +362,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: const Icon(Icons.arrow_forward_ios,
                           color: Colors.white),
                     ),
-                    Divider(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      thickness: 1,
-                      indent: 54.0,
-                    ),
-                    SettingTile(
-                      onTap: () => context.push(FaqScreen.routeName),
-                      leading: const FaIcon(FontAwesomeIcons.userShield,
-                          color: Colors.white),
-                      title: 'FAQ / Trust & Safety',
-                      titleStyle: const TextStyle(color: Colors.white),
-                      trailing: const Icon(Icons.arrow_forward_ios,
-                          color: Colors.white),
-                    ),
+                    // Divider(
+                    //   color: Colors.white.withValues(alpha: 0.25),
+                    //   thickness: 1,
+                    //   indent: 54.0,
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 14.0),
@@ -315,7 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       leading: const FaIcon(FontAwesomeIcons.rightFromBracket,
                           color: Colors.redAccent),
                       title: 'Logout',
-                      titleStyle: TextStyle(color: Colors.white),
+                      titleStyle: const TextStyle(color: Colors.white),
                       trailing: const Icon(Icons.arrow_forward_ios,
                           color: Colors.white),
                       onTap: () async {
@@ -326,6 +388,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 const SizedBox(height: 14.0),
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Have questions? Find FAQs and guidence on our homepage",
+                          style: theme.textTheme.labelMedium
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            final Uri url = Uri.parse('https://lordan.io');
+                            if (!await launchUrl(url,
+                                mode: LaunchMode.externalApplication)) {
+                              throw Exception('Could not launch $url');
+                            }
+                          },
+                          child: Text(
+                            'Here',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(255, 29, 2, 73)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

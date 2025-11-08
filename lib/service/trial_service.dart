@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,9 +13,11 @@ class TrialManager {
     if (email == null) return;
 
     final data = box.get(email);
+
     print("Expiry time is ${data["expires_at"]}");
     if (data != null && data["expires_at"] != null) {
       expiryTime = DateTime.parse(data["expires_at"]);
+
       print(expiryTime);
     }
   }
@@ -24,7 +26,8 @@ class TrialManager {
     print(expiryTime);
     if (expiryTime == null) return true;
 
-    return DateTime.now().isAfter(expiryTime!);
+    return DateTime.now().isAfter(expiryTime!) ||
+        GlobalData.user!.status.toString().toLowerCase() == "free";
   }
 
   static Duration get timeLeft {

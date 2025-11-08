@@ -45,7 +45,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
-  var _searchQuery = '';
+  final _searchQuery = '';
 
   final Map<String, String> languageMap = {
     'en-US': 'English',
@@ -160,7 +160,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                 // ──────────────────────────────
                 // 🔹 Header
                 // ──────────────────────────────
-                _buildHeader(),
+                _buildHeader(context),
 
                 // ──────────────────────────────
                 // 🔹 Messages List
@@ -179,7 +179,7 @@ class _ChatTextScreenState extends State<ChatTextScreen>
 
                       return ListView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
                         itemCount: chatProvider.messages.length,
                         itemBuilder: (context, index) {
                           final message = chatProvider.messages[index];
@@ -211,107 +211,284 @@ class _ChatTextScreenState extends State<ChatTextScreen>
     );
   }
 
-  Widget _buildHeader() {
+  // Widget _buildHeader() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+  //     decoration: BoxDecoration(
+  //       color: AppColors.glassLight.withValues(alpha: 0.1),
+  //       border: Border(
+  //         bottom: BorderSide(
+  //           color: Colors.white.withValues(alpha: 0.1),
+  //         ),
+  //       ),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         const PrimaryBackButton(),
+  //         const SizedBox(width: 10),
+  //         AnimatedBuilder(
+  //           animation: _animationController,
+  //           builder: (context, _) {
+  //             return Transform.scale(
+  //               scale: _scaleAnimation.value,
+  //               child: Opacity(
+  //                 opacity: _opacityAnimation.value,
+  //                 child: Image.asset(
+  //                   'assets/brand_logos/logo_png.png',
+  //                   width: 50,
+  //                 ),
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //         const SizedBox(width: 15),
+  //         Expanded(
+  //           flex: 2,
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 widget.roleName ?? '',
+  //                 style: const TextStyle(
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Color.fromARGB(255, 206, 198, 198),
+  //                 ),
+  //               ),
+  //               // if ((widget.roleDescription ?? '').isNotEmpty) ...[
+  //               //   const SizedBox(height: 4),
+  //               //   Text(
+  //               //     widget.roleDescription ?? '',
+  //               //     style: TextStyle(
+  //               //       fontSize: 14,
+  //               //       color: Colors.white.withValues(alpha: 0.7),
+  //               //     ),
+  //               //     maxLines: 1,
+  //               //     overflow: TextOverflow.ellipsis,
+  //               //   ),
+  //               // ],
+  //             ],
+  //           ),
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+  //           width: MediaQuery.of(context).size.width * 0.2,
+  //           height: MediaQuery.of(context).size.width * 0.15,
+  //           decoration: BoxDecoration(
+  //             color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
+  //             borderRadius: BorderRadius.circular(18),
+  //             border: Border.all(
+  //               color: const Color(0xFF1976D2)
+  //                   .withOpacity(0.6), // brighter blue border
+  //               width: 1.3,
+  //             ),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.blue.withOpacity(0.15),
+  //                 blurRadius: 10,
+  //                 offset: const Offset(0, 4),
+  //               ),
+  //             ],
+  //           ),
+  //           child: DropdownButtonHideUnderline(
+  //             child: DropdownButton<String>(
+  //               menuMaxHeight: 350,
+
+  //               value: selectedLanguageCode,
+  //               isExpanded: true,
+  //               dropdownColor: const Color(0xFF1565C0)
+  //                   .withOpacity(0.95), // dropdown background
+  //               icon:
+  //                   const Icon(Icons.arrow_drop_down, color: Color(0xFF1976D2)),
+  //               borderRadius: BorderRadius.circular(14),
+  //               style: const TextStyle(
+  //                 fontSize: 15,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Color(0xFF0D47A1),
+  //               ),
+
+  //               items: languageMap.entries.map((entry) {
+  //                 final path =
+  //                     'assets/country_flags/${entry.key.split('-')[0]}.svg';
+  //                 print(path);
+  //                 return DropdownMenuItem<String>(
+  //                   value: entry.key,
+  //                   child: SvgPicture.asset(path,
+  //                       width: MediaQuery.of(context).size.width * 0.1),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (value) {
+  //                 if (value != null) {
+  //                   setState(() => selectedLanguageCode = value);
+  //                 }
+  //               },
+  //             ),
+  //           ),
+  //         ),
+
+  //         // SimpleDropdown(items: _a, onChanged:(call){}),
+  //         // Consumer<ChatProvider>(
+  //         //   builder: (context, chatProvider, _) {
+  //         //     if (!widget.isPremium || !chatProvider.hasContext) {
+  //         //       return const SizedBox.shrink();
+  //         //     }
+  //         //     return TextButton.icon(
+  //         //       icon: const Icon(Icons.refresh, size: 16),
+  //         //       label: const Text('Resume'),
+  //         //       style: TextButton.styleFrom(
+  //         //         foregroundColor: Colors.white,
+  //         //         backgroundColor: AppColors.glassLight.withValues(alpha: 0.1),
+  //         //       ),
+  //         //       onPressed: () {
+  //         //         // TODO: Implement context resumption
+  //         //       },
+  //         //     );
+  //         //   },
+  //         // ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.glassLight.withValues(alpha: 0.1),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
-          ),
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.15),
+            Colors.white.withValues(alpha: 0.05),
+          ],
         ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const PrimaryBackButton(),
-          const SizedBox(width: 4),
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, _) {
-              return Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Opacity(
-                  opacity: _opacityAnimation.value,
-                  child: Image.asset(
-                    'assets/brand_logos/logo_png.png',
-                    width: 50,
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 4),
+          // Left side (Back button + logo + role info)
           Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  widget.roleName ?? '',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const PrimaryBackButton(),
+                const SizedBox(width: 10),
+
+                // Animated Logo
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, _) {
+                    return Transform.scale(
+                      scale: _scaleAnimation.value,
+                      child: Opacity(
+                        opacity: _opacityAnimation.value,
+                        child: Image.asset(
+                          'assets/brand_logos/logo_png.png',
+                          height: 35, // match buildTopBar height
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(width: 15),
+
+                // Role name and optional description
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.roleName ?? '',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          color: const Color.fromARGB(255, 206, 198, 198),
+                          height: 1.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // if ((widget.roleDescription ?? '').isNotEmpty)
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(top: 3),
+                      //     child: Text(
+                      //       widget.roleDescription ?? '',
+                      //       style: theme.textTheme.bodySmall?.copyWith(
+                      //         color: Colors.white.withValues(alpha: 0.7),
+                      //         fontSize: 13,
+                      //         height: 1.1,
+                      //       ),
+                      //       maxLines: 1,
+                      //       overflow: TextOverflow.ellipsis,
+                      //     ),
+                      // ),
+                    ],
                   ),
                 ),
-                // if ((widget.roleDescription ?? '').isNotEmpty) ...[
-                //   const SizedBox(height: 4),
-                //   Text(
-                //     widget.roleDescription ?? '',
-                //     style: TextStyle(
-                //       fontSize: 14,
-                //       color: Colors.white.withValues(alpha: 0.7),
-                //     ),
-                //     maxLines: 1,
-                //     overflow: TextOverflow.ellipsis,
-                //   ),
-                // ],
               ],
             ),
           ),
+
+          const SizedBox(width: 8),
+
+          // Right side (Language dropdown styled as user badge)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            width: MediaQuery.of(context).size.width * 0.2,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF0D47A1).withOpacity(0.1), // soft blue tint
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: const Color(0xFF1976D2)
-                    .withOpacity(0.6), // brighter blue border
-                width: 1.3,
+              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withValues(alpha: 0.2),
+                  Colors.white.withValues(alpha: 0.05),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withOpacity(0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.2,
+              ),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
+                menuMaxHeight: 350,
                 value: selectedLanguageCode,
-                isExpanded: true,
+                isExpanded: false,
                 dropdownColor: const Color(0xFF1565C0)
                     .withOpacity(0.95), // dropdown background
-                icon:
-                    const Icon(Icons.arrow_drop_down, color: Color(0xFF1976D2)),
-                borderRadius: BorderRadius.circular(14),
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                borderRadius: BorderRadius.circular(12),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0D47A1),
+                  color: Colors.white,
                 ),
-
                 items: languageMap.entries.map((entry) {
                   final path =
                       'assets/country_flags/${entry.key.split('-')[0]}.svg';
-                  print(path);
                   return DropdownMenuItem<String>(
                     value: entry.key,
-                    child: SvgPicture.asset(path,
-                        width: MediaQuery.of(context).size.width * 0.1),
+                    child: SvgPicture.asset(
+                      path,
+                      width: 40,
+                      height: 20,
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -322,26 +499,6 @@ class _ChatTextScreenState extends State<ChatTextScreen>
               ),
             ),
           ),
-
-          // SimpleDropdown(items: _a, onChanged:(call){}),
-          // Consumer<ChatProvider>(
-          //   builder: (context, chatProvider, _) {
-          //     if (!widget.isPremium || !chatProvider.hasContext) {
-          //       return const SizedBox.shrink();
-          //     }
-          //     return TextButton.icon(
-          //       icon: const Icon(Icons.refresh, size: 16),
-          //       label: const Text('Resume'),
-          //       style: TextButton.styleFrom(
-          //         foregroundColor: Colors.white,
-          //         backgroundColor: AppColors.glassLight.withValues(alpha: 0.1),
-          //       ),
-          //       onPressed: () {
-          //         // TODO: Implement context resumption
-          //       },
-          //     );
-          //   },
-          // ),
         ],
       ),
     );
@@ -421,11 +578,11 @@ class _ChatTextScreenState extends State<ChatTextScreen>
                                 if (TrialManager.isTrialExpired) {
                                   showAppSnackbar(
                                       context,
-                                      "24 hours trial expired Have to upgrade package to continue chat",
+                                      "You have to upgrade package to continue chat",
                                       "info");
                                   context.push('/paywall');
                                 }
-
+                                _scrollToBottom();
                                 await context.read<ChatProvider>().sendMessage(
                                     message,
                                     mode: "text",

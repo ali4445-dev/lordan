@@ -5,16 +5,20 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:lordan_v1/global.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/models/user_model.dart';
+import 'package:lordan_v1/providers/subscribtion_provider.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
+import 'package:lordan_v1/service/supabase_service.dart';
 import 'package:lordan_v1/service/trial_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../providers/user_provider.dart';
 
-class UserStorageService extends ChangeNotifier {
+class UserStorageService with ChangeNotifier {
   static final Box _userBox = Hive.box('userBox');
   static Box get getUserBox => _userBox;
 
@@ -27,11 +31,11 @@ class UserStorageService extends ChangeNotifier {
     String? email;
     if (currentUser != null) {
       email = currentUser.email;
-      final box = await getUserBox;
+      final box = getUserBox;
       final data = box.get(email);
 
       if (data != null) {
-        debugPrint("User Existing Session Restrored as :\n${data}");
+        debugPrint("User Existing Session Restrored as :\n$data");
         loadUserData();
         return;
       }
@@ -95,7 +99,7 @@ class UserStorageService extends ChangeNotifier {
 
   /// Load user settings (if exist)
   static Future<bool> loadUserData() async {
-    final user = await Supabase.instance.client.auth.currentUser;
+    final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
       final userEmail = user.email;
 
@@ -128,15 +132,16 @@ class UserStorageService extends ChangeNotifier {
         'email': data['email'],
         'userKey': data['user_id'],
         'status': data['status'],
-        'created_at': data['created_at'],
-        'expires_at': data['expires_at'],
-        'updated_at': data['updated_at'],
+        'created_at': data['created_at'].toString(),
+        'expires_at': data['expires_at'].toString(),
+        'updated_at': data['updated_at'].toString(),
         'platform': data['platform'] ?? 'unknown',
       });
 
       GlobalData.setUser(appUser);
-      print("App User Setted successfully ${GlobalData.user.toString()}");
+      print("App User Setted successfully ${GlobalData.user!.toJson()}");
       await TrialManager.loadTrialData();
+      GlobalData.planInProgresss = data["plan"] ?? data["status"];
 
       return true;
     }
@@ -180,44 +185,39 @@ class UserStorageService extends ChangeNotifier {
     return List<String>.from(roles);
   }
 
-  static Future<void> migrateAndSaveRoles() async {
-    final userBox = UserStorageService.getUserBox;
+  // static Future<void> migrateAndSaveRoles() async {
+  //   final userBox = UserStorageService.getUserBox;
 
-    // Get existing roles (list of strings or list of maps)
-    final roles = userBox.get('roles', defaultValue: []);
+  //     final box = _userBox; // Or: final box = getUserBox;
+  //     final existingData =
+  //         Map<String, dynamic>.from(box.get(email, defaultValue: {}));
 
-    // If already in object format, skip migration
-    if (roles.isNotEmpty && roles.first is Map) {
-      return;
-    }
+  //   // Get existing roles (list of strings or list of maps)
+  //   final roles = userBox.get('roles', defaultValue: []);
 
-    // Convert from list of strings → list of maps
-    final newRoles = (roles as List).map((r) {
-      return {
-        "roleName": r,
-        "isPremium": false, // default value
-        "selectedAt": DateTime.now().toIso8601String(),
-      };
-    }).toList();
+  //   // If already in object format, skip migration
+  //   if (roles.isNotEmpty && roles.first is Map) {
+  //     return;
+  //   }
 
-    // Save back into Hive
-    await userBox.put('roles', newRoles);
-    print(userBox.toMap());
-  }
+  //   // Convert from list of strings → list of maps
+  //   final newRoles = (roles as List).map((r) {
+  //     return {
+  //       "roleName": r,
+  //       "isPremium": false, // default value
+  //       "selectedAt": DateTime.now().toIso8601String(),
+  //     };
+  //   }).toList();
 
-  static Future<void> saveUserStatus(String productId) async {
-    final now = DateTime.now();
-    DateTime expiryDate;
+  //   // Save back into Hive
+  //   await userBox.put('roles', newRoles);
+  //   print(userBox.toMap());
+  // }
 
-    // 🔹 Determine expiry duration based on plan type
-    if (productId.toLowerCase().contains("monthly")) {
-      expiryDate = now.add(const Duration(days: 30));
-    } else if (productId.toLowerCase().contains("yearly")) {
-      expiryDate = now.add(const Duration(days: 365));
-    } else {
-      // Default to a 1-day trial if not recognized
-      expiryDate = now.add(const Duration(hours: 24));
-    }
+  static Future<void> saveUserStatus(String productId,
+      {bool cancel = false, PurchaseDetails? purchase}) async {
+    DateTime now = DateTime.now();
+    DateTime expiryDate = DateTime.now();
 
     final email = Supabase.instance.client.auth.currentUser?.email;
     if (email == null) {
@@ -229,27 +229,105 @@ class UserStorageService extends ChangeNotifier {
     final existingData =
         Map<String, dynamic>.from(box.get(email, defaultValue: {}));
 
-    // 🔹 Update user data locally in Hive
-    existingData["status"] = productId;
-    existingData["updated_at"] = now.toIso8601String();
-    existingData["expires_at"] = expiryDate.toIso8601String();
+    if (purchase != null && purchase.transactionDate != null) {
+      now = DateTime.fromMillisecondsSinceEpoch(
+          int.parse(purchase.transactionDate!));
 
-    await box.put(email, existingData);
-    print("💾 Hive user updated: $existingData");
+      expiryDate =
+          existingData["plan"].toString().toUpperCase().contains("MONTH")
+              ? now.add(const Duration(days: 30))
+              : now.add(const Duration(days: 365));
 
-    // 🔹 Sync with Supabase (optional but recommended)
-    // try {
-    //   await Supabase.instance.client.from('users').update({
-    //     'status': productId,
-    //     'expires_at': expiryDate.toIso8601String(),
-    //     'updated_at': now.toIso8601String(),
-    //   }).eq('email', email);
-    //   print("✅ Supabase user status updated for $email");
-    // } catch (e) {
-    //   print("⚠️ Failed to update user status on Supabase: $e");
-    // }
+      // if (!purchase.productID.toLowerCase().contains("yearly")) {
+      //   expiryDate = now.add(const Duration(days: 30));
+      // } else if (purchase.productID.toLowerCase().contains("yearly")) {
+      //   expiryDate = now.add(const Duration(days: 365));
+      // }
 
-    // 🔹 Reload global user data (if your app caches it)
-    await loadUserData();
+      // if (purchase.status == PurchaseStatus.canceled) {
+      //   existingData["plan"] =
+      //       " ${purchase.productID.toUpperCase().replaceAll('.', ' ')}(canceled)";
+      //   existingData["status"] =
+      //       purchase.productID.toUpperCase().contains("PREMIUM")
+      //           ? "premium"
+      //           : "standard";
+      // } else {
+      //   print(purchase.productID.toUpperCase().contains("PREMIUM"));
+      //   existingData["status"] =
+      //       purchase.productID.toUpperCase().contains("PREMIUM")
+      //           ? "premium"
+      //           : "standard";
+      //   existingData["plan"] =
+      //       " ${purchase.productID.toUpperCase().replaceAll('.', ' ')}";
+      // }
+
+      // 🔹 Update user data locally in Hive
+
+      existingData["under_trial"] = false;
+      existingData["updated_at"] = now.toIso8601String();
+      existingData["expires_at"] = expiryDate.toIso8601String();
+
+      await box.put(email, existingData);
+      print("💾 Hive user updated: $existingData");
+
+      loadUserData();
+      return;
+
+      // final purchase = SubscriptionService.checkSubscriptionStatus();
+    } else {
+      // 🔹 Determine expiry duration based on plan type
+      if (!productId.toLowerCase().contains("yearly")) {
+        expiryDate = now.add(const Duration(days: 30));
+      } else if (productId.toLowerCase().contains("yearly")) {
+        expiryDate = now.add(const Duration(days: 365));
+      } else {
+        // Default to a 1-day trial if not recognized
+        expiryDate = now.add(const Duration(hours: 24));
+      }
+
+      final email = Supabase.instance.client.auth.currentUser?.email;
+      if (email == null) {
+        print("⚠️ No logged-in user found when saving status!");
+        return;
+      }
+
+      if (cancel) {
+        existingData["plan"] = "Unsubscribed";
+        existingData["status"] = "free";
+        await box.put(email, existingData);
+        print("The user has cancelled the subscription");
+        loadUserData();
+        return;
+      }
+
+      // 🔹 Update user data locally in Hive
+      existingData["status"] =
+          productId.toUpperCase().contains("PREMIUM") ? "premium" : "standard";
+      existingData["plan"] = productId.toUpperCase();
+
+      existingData["under_trial"] = false;
+      existingData["updated_at"] = now.toIso8601String();
+      existingData["expires_at"] = expiryDate.toIso8601String();
+
+      await box.put(email, existingData);
+      print("💾 Hive user updated: $existingData");
+
+      // 🔹 Sync with Supabase (optional but recommended)
+      // try {
+      //   await Supabase.instance.client.from('users').update({
+      //     'status': productId,
+      //     'expires_at': expiryDate.toIso8601String(),
+      //     'updated_at': now.toIso8601String(),
+      //   }).eq('email', email);
+      //   print("✅ Supabase user status updated for $email");
+      // } catch (e) {
+      //   print("⚠️ Failed to update user status on Supabase: $e");
+      // }
+
+      // 🔹 Reload global user data (if your app caches it)
+      await loadUserData();
+
+      return;
+    }
   }
 }

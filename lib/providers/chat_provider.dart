@@ -59,16 +59,16 @@ class ChatProvider with ChangeNotifier {
           plan: !isPremium ? 'free' : 'premium',
           role: role,
           userKey: user_id);
-      if (GlobalData.messageCount == 12) {
-        final Map<String, dynamic> jsonData =
-            await sendToLordan('', userKey: user_id);
-        ChatStorageService.addMessage(
-          chatMode: role,
-          message: jsonData["summary"].trim(),
-        );
-        print("Summary Add to database");
-        GlobalData.messageCount = 0;
-      }
+      // if (GlobalData.messageCount == 12) {
+      //   final Map<String, dynamic> jsonData =
+      //       await sendToLordan('', userKey: user_id);
+      //   ChatStorageService.addMessage(
+      //     chatMode: role,
+      //     message: jsonData["summary"].trim(),
+      //   );
+      //   print("Summary Add to database");
+      //   GlobalData.messageCount = 0;
+      // }
       if (mode == 'tts') {
         // Get the Base64 audio string
         final audioB64 = jsonData['audio_b64'];

@@ -18,9 +18,12 @@ Widget buildFeatureList(List<String> features) {
               child: Text(
                 feature,
                 style: TextStyle(
-                  color: Colors.white.withAlpha(220),
+                  color:
+                      const Color.fromARGB(255, 216, 213, 209).withAlpha(220),
                   fontSize: 15,
                   height: 1.3, // line spacing
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
                 ),
               ),
             ),

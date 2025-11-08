@@ -32,8 +32,8 @@ android {
         applicationId = "com.chatbot.lordan_v1"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 27
-        versionName = "1.1.1"
+        versionCode = 30
+        versionName = "1.1.4"
     }
 
     signingConfigs {

@@ -74,10 +74,10 @@ class MessageBubble extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onLongPress: () => _showActions(context),
+                // onLongPress: () => _showActions(context),
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -137,11 +137,21 @@ class MessageBubble extends StatelessWidget {
                 ],
         ),
       ),
-      child: Icon(
-        isUser ? Icons.person : Icons.psychology,
-        size: 18,
-        color: isUser ? AppColors.secondaryLight : AppColors.primaryLight,
-      ),
+      child: isUser
+          ? const Icon(
+              Icons.person,
+              size: 18,
+              color: AppColors.secondaryLight,
+            )
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(9), // half of size = circle
+              child: Image.asset(
+                'assets/icons/app_icon.png',
+                width: 18,
+                height: 18,
+                fit: BoxFit.cover,
+              ),
+            ),
     );
   }
 
@@ -187,22 +197,22 @@ class MessageBubble extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.share, color: Colors.white),
-              title: const Text('Share', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                // Share.share(message.content);
-                context.pop();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                onDelete();
-                context.pop();
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.share, color: Colors.white),
+            //   title: const Text('Share', style: TextStyle(color: Colors.white)),
+            //   onTap: () {
+            //     // Share.share(message.content);
+            //     context.pop();
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(Icons.delete_outline, color: Colors.red),
+            //   title: const Text('Delete', style: TextStyle(color: Colors.red)),
+            //   onTap: () {
+            //     onDelete();
+            //     context.pop();
+            //   },
+            // ),
             const SizedBox(height: 8),
           ],
         ),

@@ -62,7 +62,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  buildTopBar(theme, isPremiumUser: userProvider.isPremium),
+                  buildTopBar(theme, context,
+                      isPremiumUser: userProvider.isPremium),
                   const Expanded(
                     child: Center(
                       child: Text(

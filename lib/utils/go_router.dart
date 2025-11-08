@@ -4,6 +4,7 @@ import 'package:lordan_v1/models/history_item.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/about_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/company_screen.dart';
 import 'package:lordan_v1/screens/home_screen_pages/settings/terms_of_service_screen.dart';
+import 'package:lordan_v1/screens/paywall/plans_comparison.dart';
 import 'package:lordan_v1/screens/start/auth/otp_screen.dart';
 import 'package:lordan_v1/screens/start/language_selection_screen.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +30,6 @@ import '../screens/paywall/paywall_screen.dart';
 
 // Export a single GoRouter instance configured with guards and routes
 final GoRouter router = GoRouter(
-
   initialLocation: RoutePaths.welcome,
   redirect: (BuildContext context, GoRouterState state) {
     final auth = context.read<AuthProvider?>();
@@ -58,6 +58,7 @@ final GoRouter router = GoRouter(
       RoutePaths.termsOfService,
       RoutePaths.about,
       RoutePaths.company,
+      RoutePaths.comparison
     };
 
     // Auth guard
@@ -84,7 +85,6 @@ final GoRouter router = GoRouter(
   },
   routes: <RouteBase>[
     GoRoute(
-      
       path: RoutePaths.welcome,
       name: 'welcome',
       builder: (context, state) => const WelcomeScreen(),
@@ -192,6 +192,11 @@ final GoRouter router = GoRouter(
       path: RoutePaths.company,
       name: 'company',
       builder: (context, state) => const CompanyScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.comparison,
+      name: 'comparison',
+      builder: (context, state) => const ComparisonScreen(),
     ),
   ],
 );

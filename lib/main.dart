@@ -2,17 +2,13 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lordan_v1/models/chat_mode.dart';
 import 'package:lordan_v1/models/message.dart';
 import 'package:lordan_v1/models/user_chat_data.dart';
 import 'package:lordan_v1/providers/stats_provider.dart';
 import 'package:lordan_v1/providers/subscribtion_provider.dart';
-import 'package:lordan_v1/screens/paywall/supscription_screen.dart';
 import 'package:lordan_v1/service/supabase_service.dart';
-import 'package:lordan_v1/service/trial_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -65,7 +61,13 @@ Future<void> main() async {
         debugPrint('Access token refreshed ✅');
       }
     });
+    final subscriptionService = SubscriptionService(); // create once
 
+    Timer.periodic(const Duration(minutes: 20), (timer) async {
+      await subscriptionService.checkSubscriptionStatus();
+    });
+
+    await subscriptionService.checkSubscriptionStatus(); // listen setup
     runApp(
       MultiProvider(
         providers: [
@@ -73,7 +75,7 @@ Future<void> main() async {
           ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
           ChangeNotifierProvider<ChatProvider>(create: (_) => ChatProvider()),
           ChangeNotifierProvider<SubscriptionService>(
-            create: (_) => SubscriptionService(),
+            create: (_) => subscriptionService,
           ),
           ChangeNotifierProvider(
               create: (_) => StatsProvider(SupabaseService())),

@@ -12,7 +12,6 @@ import '../../../providers/user_provider.dart';
 import '../../../theme.dart';
 import '../../../utils/components/pinput_style.dart';
 import '../../../utils/components/primary_back_button.dart';
-import '../../../utils/components/primary_button.dart';
 import '../../../utils/components/gradient_backdrop.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -92,10 +91,12 @@ class _OtpScreenState extends State<OtpScreen> {
                   children: [
                     // AuthAppbar(title: 'confirm_your_phone'),
                     const SizedBox(height: 24.0),
-                    Text(
-                      'Confirmation sent to your email',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                    Center(
+                      child: Text(
+                        'Confirmation sent to your email',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w800),
+                      ),
                     ),
                     const SizedBox(height: 100.0),
 

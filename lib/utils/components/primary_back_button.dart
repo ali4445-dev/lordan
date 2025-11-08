@@ -14,11 +14,12 @@ class PrimaryBackButton extends StatelessWidget {
           onTap: () => Navigator.of(context).maybePop(),
           child: Container(
             width: 42,
-            height: 42,
+            height: 30,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
               color: Colors.white.withValues(alpha: 0.2),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.25), width: 1),
             ),
             child: const Icon(
               Icons.arrow_back_ios_new,

@@ -5,6 +5,8 @@ import 'package:lordan_v1/service/user_storage_service.dart';
 class GlobalData {
   static int? messageCount = 0;
   static bool autoPlay = false;
+  static String? planInProgresss;
+  static bool hd_quality = false;
 
   static String email = "Guest User";
   static String? uid;
@@ -21,6 +23,7 @@ class GlobalData {
   static void setUid(String? newUid) => uid = newUid;
   static void setPlan(String newPlan) => plan = newPlan;
   static void setCount(int newMessageCount) => messageCount = newMessageCount;
+  static void setHdQuality(bool hdQuality) => hd_quality = hdQuality;
 
   static void setLanguage(String? newLang) => language = newLang;
   static void setLoading(bool value) => isLoading = value;

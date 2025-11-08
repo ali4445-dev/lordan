@@ -25,6 +25,7 @@ class RoutePaths {
   static const String termsOfService = '/terms-of-service';
   static const String about = '/about';
   static const String company = '/company';
+  static const String comparison = '/comparison';
 }
 
 enum AppPlan { free, premium }

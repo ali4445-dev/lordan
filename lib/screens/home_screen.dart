@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen>
   int _currentIndex = 0;
   final List<Widget> _pages = const [
     ActivitiesScreen(),
-    ChatHistoryScreen(),
+    // ChatHistoryScreen(),
     SettingsScreen(),
   ];
 
@@ -57,19 +57,19 @@ class _HomeScreenState extends State<HomeScreen>
                     BlendMode.srcIn),
               ),
               label: 'Home'),
-          BottomNavigationBarItem(
-              icon: SvgPicture.asset(
-                'assets/icons/history.svg',
-                colorFilter: ColorFilter.mode(
-                    _currentIndex == 1
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context)
-                            .colorScheme
-                            .surface
-                            .withValues(alpha: 0.6),
-                    BlendMode.srcIn),
-              ),
-              label: 'History'),
+          // BottomNavigationBarItem(
+          //     icon: SvgPicture.asset(
+          //       'assets/icons/history.svg',
+          //       colorFilter: ColorFilter.mode(
+          //           _currentIndex == 1
+          //               ? Theme.of(context).colorScheme.primary
+          //               : Theme.of(context)
+          //                   .colorScheme
+          //                   .surface
+          //                   .withValues(alpha: 0.6),
+          //           BlendMode.srcIn),
+          //     ),
+          //     label: 'History'),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               'assets/icons/setting.svg',

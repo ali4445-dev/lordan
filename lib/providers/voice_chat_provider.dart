@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -7,6 +10,7 @@ import 'package:lordan_v1/service/audio_service.dart';
 import 'package:lordan_v1/service/chat_service.dart';
 import 'package:lordan_v1/service/chat_storage_service.dart';
 import 'package:lordan_v1/utils/components/snack_bar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -23,7 +27,7 @@ class VoiceChatProvider with ChangeNotifier {
 
   // State
   VoiceState _state = VoiceState.idle;
-  bool _isContinuousMode = false;
+  bool _isflowMode = false;
   String _transcript = '';
   final List<Message> _messages = [];
 
@@ -37,7 +41,7 @@ class VoiceChatProvider with ChangeNotifier {
   // Getters
   VoiceState get state => _state;
 
-  bool get isContinuousMode => _isContinuousMode;
+  bool get isflowMode => _isflowMode;
 
   String get transcript => _transcript;
 
@@ -63,22 +67,22 @@ class VoiceChatProvider with ChangeNotifier {
 
     _tts.setCompletionHandler(() async {
       print("VoiceState is $_state");
-      if (_isContinuousMode &&
-          _state == VoiceState.speaking &&
-          flowCount <= 6) {
-        flowCount++;
-        debugPrint("🔁 Restarting mic for conversation $flowCount");
 
-        // Wait a tiny bit before restarting recognition
-        await Future.delayed(const Duration(milliseconds: 800));
-        _state = VoiceState.idle;
-        print("Listening Again...");
-        startListening();
-      } else {
-        _state = VoiceState.idle;
-        clearError();
-      }
-      notifyListeners();
+      // if (_isflowMode && _state == VoiceState.speaking && flowCount < 6) {
+      //   flowCount++;
+      //   debugPrint("🔁 Restarting mic for conversation $flowCount");
+
+      //   // Wait a tiny bit before restarting recognition
+      //   await Future.delayed(const Duration(milliseconds: 800));
+      //   _state = VoiceState.idle;
+      //   print("Listening Again...");
+      //   startListening();
+      // } else {
+      //   flowCount = 1;
+      //   _state = VoiceState.idle;
+      //   clearError();
+      // }
+      // notifyListeners();
     });
   }
 
@@ -101,6 +105,53 @@ class VoiceChatProvider with ChangeNotifier {
   //
   //   return _isInitialized;
   // }
+
+  Future<void> playBase64Audio(String base64Audio) async {
+    try {
+      print("🎯 Reached playBase64Audio");
+
+      final audioBytes = base64Decode(base64Audio);
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/ai_response.mp3');
+      await file.writeAsBytes(audioBytes);
+
+      final fileExists = await file.exists();
+      final fileSize = await file.length();
+      print("📂 File path: ${file.path}");
+      print("✅ Exists: $fileExists | 📏 Size: $fileSize bytes");
+
+      if (!fileExists || fileSize < 2000) {
+        print("❌ Audio file seems invalid or too small");
+        return;
+      }
+
+      final player = AudioPlayer();
+      await player.setReleaseMode(ReleaseMode.stop);
+      await player.setVolume(1.0);
+
+      final result = await player.play(DeviceFileSource(file.path));
+      player.onPlayerComplete.listen((event) async {
+        if (_isflowMode &&
+            flowCount < 6 &&
+            GlobalData.user!.status == "premium") {
+          flowCount++;
+          debugPrint("🔁 Restarting mic for conversation $flowCount");
+
+          // Wait a tiny bit before restarting recognition
+          await Future.delayed(const Duration(milliseconds: 800));
+          _state = VoiceState.idle;
+          print("Listening Again...");
+          startListening();
+        } else if (flowCount >= 6) {
+          print("refreshingCount $flowCount ");
+          flowCount = 1;
+        }
+      });
+      print("🎵 Play Ended");
+    } catch (e) {
+      print("❌ Error playing audio: $e");
+    }
+  }
 
   Future<bool> _initializeSpeech() async {
     if (_isInitialized) return true;
@@ -125,6 +176,7 @@ class VoiceChatProvider with ChangeNotifier {
 
   Future<void> startListening({bool isPremium = false}) async {
     if (_state == VoiceState.listening) return;
+    print("$flowCount   ....................................");
 
     // Clear any previous errors
     clearError();
@@ -155,13 +207,15 @@ class VoiceChatProvider with ChangeNotifier {
         onResult: (result) {
           notifyListeners();
           _transcript = result.recognizedWords;
+
           _resetSilenceTimer();
         },
         cancelOnError: true,
         partialResults: true,
         listenMode:
-            _isContinuousMode ? ListenMode.dictation : ListenMode.confirmation,
+            _isflowMode ? ListenMode.dictation : ListenMode.confirmation,
       );
+
       _startSilenceTimer();
     } catch (e) {
       _handleError('Error starting speech recognition: $e');
@@ -170,9 +224,12 @@ class VoiceChatProvider with ChangeNotifier {
 
   void _startSilenceTimer() {
     _silenceTimer?.cancel();
-    _silenceTimer = Timer(const Duration(seconds: 9), () {
-      debugPrint("🕓 No speech detected for 5 seconds — stopping listening...");
-      stopListening();
+    _silenceTimer = Timer(const Duration(seconds: 4), () {
+      if (GlobalData.user!.status == "premium") {
+        debugPrint(
+            "🕓 No speech detected for 5 seconds — stopping listening...");
+        stopListening();
+      }
     });
   }
 
@@ -182,7 +239,7 @@ class VoiceChatProvider with ChangeNotifier {
   }
 
   Future<void> stopListening(
-      {String mode = 'tts',
+      {String mode = 'voice',
       bool isPremium = false,
       String language = 'en-US',
       String role = "study"}) async {
@@ -219,64 +276,89 @@ class VoiceChatProvider with ChangeNotifier {
       notifyListeners();
       return;
     }
-
+    if (GlobalData.user!.status == "premium" && GlobalData.autoPlay) {
+      _messages.add(Message(
+        id: DateTime.now().toString(),
+        role: 'user',
+        content: _transcript,
+        createdAt: DateTime.now(),
+      ));
+      // notifyListeners();
+      // Process "AI" response (placeholder)
+      _state = VoiceState.processing;
+      notifyListeners();
+    }
     // Add user message
-    _messages.add(Message(
-      id: DateTime.now().toString(),
-      role: 'user',
-      content: _transcript,
-      createdAt: DateTime.now(),
-    ));
-
-    // Process "AI" response (placeholder)
-    _state = VoiceState.processing;
-    notifyListeners();
 
     print(_transcript);
 
-    await dynamicVoice();
     final userKey = GlobalData.user!.userKey;
+    String chat_mode = "voice";
 
     // TODO: Replace this with actual API call
     final aiResponse = await sendToLordan(_transcript,
-        mode: mode,
+        mode: chat_mode,
         plan: isPremium ? "premium" : "free",
         locale: language,
         role: role,
         userKey: userKey);
 
-    _messages.add(Message(
-      id: DateTime.now().toString(),
-      role: 'assistant',
-      content: aiResponse['reply'] ?? "Please Wait",
-      createdAt: DateTime.now(),
-    ));
-
-    print(aiResponse["reply"]);
-    print(aiResponse["audio_b64"]);
-    // if (aiResponse["audio_b64"] != null) {
-    // playBase64Audio(aiResponse["audio_b64"]);
-    // } else {
-    await speak(aiResponse['reply']);
-    try {
-      if (GlobalData.messageCount == 12) {
-        final Map<String, dynamic> jsonData =
-            await sendToLordan('', userKey: userKey);
-        ChatStorageService.addMessage(
-            chatMode: GlobalData.mode ?? " ",
-            message: aiResponse['reply'] ?? "");
-        print("Summary Add to database");
-        GlobalData.messageCount = 0;
-      }
-    } catch (e) {
-      print("Error is $e");
+    if (GlobalData.user!.status == "premium" && GlobalData.autoPlay) {
+      _messages.add(Message(
+        id: DateTime.now().toString(),
+        role: 'assistant',
+        content: aiResponse['reply'] ?? "Please Wait",
+        createdAt: DateTime.now(),
+      ));
+      notifyListeners();
     }
+
+    // If autoplay is disable flowMode will let 6 consecutive messages
+    // if (!GlobalData.autoPlay) {
+    //   if (_isflowMode && flowCount < 6) {
+    //     flowCount++;
+    //     debugPrint("🔁 Restarting mic for conversation $flowCount");
+
+    //     // Wait a tiny bit before restarting recognition
+    //     await Future.delayed(const Duration(milliseconds: 800));
+    //     _state = VoiceState.idle;
+    //     print("Listening Again...");
+    //     startListening();
+    //   } else if (flowCount >= 6) {
+    //     print("refreshingCount $flowCount ");
+    //     flowCount = 1;
+    //   }
+    // }
+
+    if ((aiResponse["audio_b64"] != null) ||
+        GlobalData.user!.status == "standard") {
+      await speak(aiResponse["audio_b64"]);
+    }
+
+    // if (GlobalData.user!.status != "premium" || GlobalData.autoPlay) {
+    //   await dynamicVoice();
+    //   await speak(aiResponse['reply']);
+    // }
+
+    // try {
+    //   if (GlobalData.messageCount == 12) {
+    //     final Map<String, dynamic> jsonData =
+    //         await sendToLordan('', userKey: userKey);
+    //     ChatStorageService.addMessage(
+    //         chatMode: GlobalData.mode ?? " ",
+    //         message: aiResponse['reply'] ?? "");
+    //     print("Summary Add to database");
+    //     GlobalData.messageCount = 0;
+    //   }
+    // } catch (e) {
+    //   print("Error is $e");
+    // }
 
     // }
 
     // Speak the response
 
-    // await speak(aiResponse['reply']);
+    //
     // ChatStorageService.addMessage(
     //     chatMode: GlobalData.mode!,
     //     message: Message(
@@ -288,12 +370,12 @@ class VoiceChatProvider with ChangeNotifier {
     _transcript = '';
   }
 
-  Future<void> speak(String text) async {
+  Future<void> speak(String voiceBytes) async {
     _state = VoiceState.speaking;
     notifyListeners();
 
     try {
-      await _tts.speak(text);
+      await playBase64Audio(voiceBytes);
     } catch (e) {
       _handleError('Text-to-speech error: $e');
       _state = VoiceState.idle;
@@ -301,8 +383,8 @@ class VoiceChatProvider with ChangeNotifier {
     }
   }
 
-  void toggleContinuousMode(bool value) {
-    _isContinuousMode = value;
+  void toggleflowMode(bool value) {
+    _isflowMode = value;
     if (_state == VoiceState.listening) {
       stopListening();
       startListening(); // Restart with new mode
@@ -333,6 +415,8 @@ class VoiceChatProvider with ChangeNotifier {
 
   Future<void> dynamicVoice() async {
     final voices = await _tts.getVoices;
+    print(voices);
+    print(_tts.getLanguages);
 
     if (voices == null || voices.isEmpty) {
       print("⚠️ No voices found!");
