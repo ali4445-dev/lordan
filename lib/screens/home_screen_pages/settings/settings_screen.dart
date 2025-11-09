@@ -390,36 +390,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 14.0),
                 Center(
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Have questions? Find FAQs and guidence on our homepage",
-                          style: theme.textTheme.labelMedium
-                              ?.copyWith(color: Colors.white),
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            final Uri url = Uri.parse('https://lordan.io');
-                            if (!await launchUrl(url,
-                                mode: LaunchMode.externalApplication)) {
-                              throw Exception('Could not launch $url');
-                            }
-                          },
-                          child: Text(
-                            'Here',
-                            style: theme.textTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: const Color.fromARGB(255, 29, 2, 73)),
+                    width: MediaQuery.of(context).size.width * 0.7, // max width
+                    padding: const EdgeInsets.all(8),
+
+                    child: RichText(
+                      textAlign: TextAlign.center, // Centers the whole block
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text:
+                                "Have questions? Find FAQs and guidance on our homepage ",
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: Colors.white, height: 1.3),
                           ),
-                        ),
-                      ],
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.baseline,
+                            baseline: TextBaseline.alphabetic,
+                            child: GestureDetector(
+                              onTap: () async {
+                                final Uri url = Uri.parse('https://lordan.io');
+                                if (!await launchUrl(url,
+                                    mode: LaunchMode.externalApplication)) {
+                                  throw Exception('Could not launch $url');
+                                }
+                              },
+                              child: Text(
+                                'here',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color.fromARGB(
+                                            255, 170, 132, 5)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),

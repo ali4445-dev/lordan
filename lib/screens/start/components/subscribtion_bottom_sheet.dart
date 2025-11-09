@@ -66,7 +66,7 @@ class SubscriptionBottomSheet {
                       child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        "Subscribe to avail services",
+                        "Subscribe to start using Lordan",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class SubscriptionBottomSheet {
                           ),
                         ),
                         child: const Text(
-                          'Why to upgrade?',
+                          'Why upgrade?',
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

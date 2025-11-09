@@ -230,13 +230,23 @@ class UserStorageService with ChangeNotifier {
         Map<String, dynamic>.from(box.get(email, defaultValue: {}));
 
     if (purchase != null && purchase.transactionDate != null) {
-      now = DateTime.fromMillisecondsSinceEpoch(
-          int.parse(purchase.transactionDate!));
+      final expiryTime = DateTime.parse(existingData["expires_at"]);
+      final updatedTime = DateTime.parse(existingData["updated_at"]);
 
-      expiryDate =
-          existingData["plan"].toString().toUpperCase().contains("MONTH")
-              ? now.add(const Duration(days: 30))
-              : now.add(const Duration(days: 365));
+      if (DateTime.now().isAfter(expiryTime)) {
+        // Calculate plan duration
+        final planDuration = expiryTime.difference(updatedTime);
+
+        // Update expiry
+        final updatedExpiry = expiryTime.add(planDuration);
+
+        existingData["under_trial"] = false;
+        existingData["updated_at"] = existingData["expires_at"];
+        existingData["expires_at"] = updatedExpiry.toIso8601String();
+      }
+
+      print("Updated at ${existingData["updated_at"]}");
+      print("Expires at ${existingData["expires_at"]}");
 
       // if (!purchase.productID.toLowerCase().contains("yearly")) {
       //   expiryDate = now.add(const Duration(days: 30));
@@ -263,10 +273,6 @@ class UserStorageService with ChangeNotifier {
 
       // 🔹 Update user data locally in Hive
 
-      existingData["under_trial"] = false;
-      existingData["updated_at"] = now.toIso8601String();
-      existingData["expires_at"] = expiryDate.toIso8601String();
-
       await box.put(email, existingData);
       print("💾 Hive user updated: $existingData");
 
@@ -280,9 +286,6 @@ class UserStorageService with ChangeNotifier {
         expiryDate = now.add(const Duration(days: 30));
       } else if (productId.toLowerCase().contains("yearly")) {
         expiryDate = now.add(const Duration(days: 365));
-      } else {
-        // Default to a 1-day trial if not recognized
-        expiryDate = now.add(const Duration(hours: 24));
       }
 
       final email = Supabase.instance.client.auth.currentUser?.email;

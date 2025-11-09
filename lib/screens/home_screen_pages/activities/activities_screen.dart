@@ -7,7 +7,6 @@ import 'package:lordan_v1/screens/chat/chat_text_screen.dart';
 import 'package:lordan_v1/screens/paywall/paywall_screen.dart';
 import 'package:lordan_v1/screens/start/components/app_bar.dart';
 import 'package:lordan_v1/service/trial_service.dart';
-import 'package:lordan_v1/service/user_storage_service.dart';
 import 'package:lordan_v1/utils/components/loading_background.dart';
 import 'package:lordan_v1/utils/components/search_field.dart';
 import 'package:lordan_v1/utils/components/snack_bar.dart';
@@ -15,7 +14,6 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../service/supabase_service.dart';
-import '../../../theme.dart';
 import '../../../utils/components/gradient_backdrop.dart';
 
 // TODO: Remove dummy data once Supabase is connected
@@ -375,7 +373,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Unlock all premium roles and access to exclusive features',
+                  'Unlock all premium modes and access to exclusive features',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white.withValues(alpha: 0.8),
                   ),

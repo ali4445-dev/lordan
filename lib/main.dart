@@ -63,7 +63,7 @@ Future<void> main() async {
     });
     final subscriptionService = SubscriptionService(); // create once
 
-    Timer.periodic(const Duration(minutes: 20), (timer) async {
+    Timer.periodic(const Duration(minutes: 30), (timer) async {
       await subscriptionService.checkSubscriptionStatus();
     });
 

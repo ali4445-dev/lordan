@@ -28,13 +28,10 @@ class SubscriptionService with ChangeNotifier {
 
     _iap.restorePurchases();
     _iap.purchaseStream.listen((list) async {
-      print("Changes Made in purchase");
       if (list.isNotEmpty) {
         for (final purchase in list) {
           //         // Only consider completed purchases
-          print(purchase.productID);
-          print(purchase.status);
-          print(purchase.transactionDate);
+
           if (purchase.status == PurchaseStatus.restored) {
             await UserStorageService.saveUserStatus("", purchase: purchase);
             notifyListeners();
@@ -43,8 +40,6 @@ class SubscriptionService with ChangeNotifier {
           //  single subscription, stop at first active
         }
       } else {
-        print("User has Canceled the subscription");
-
         await UserStorageService.saveUserStatus("", cancel: true);
         notifyListeners();
       }
